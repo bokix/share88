@@ -1,0 +1,20 @@
+{
+   "background_page": "background.html",
+   "browser_action": {
+      "default_icon": "icons/butterfly_32.png",
+      "default_title": "__MSG_extName__",
+      "popup": "popup.html"
+   },
+   "default_locale": "zh_CN",
+   "description": "__MSG_description__",
+   "icons": {
+      "128": "icons/butterfly_128.png",
+      "48": "icons/butterfly_48.png"
+   },
+   "key": "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCu6NED8a1sDUyVgAG+YirxnTJ8IQvwPynQhC4fMTRPGcYRIYHHuwxnlHQ2EsItYOWPFbVhd+uFFsA2mLqZsIwmwnMaRLnrpntD7e/IEcN5gNw2eXlF0gxiGSy3VSJuxH0ifxYhbx3mw9Osj4DVVwa9XaprQv1Uqu9cOv2ORuLi6wIDAQAB",
+   "name": "__MSG_extName__",
+   "options_page": "options.html",
+   "permissions": [ "tabs", "http://*/", "https://*/" ],
+   "update_url": "http://clients2.google.com/service/update2/crx",
+   "version": "0.3.10"
+}
