@@ -58,20 +58,20 @@ function addServicesAdv()
 	if(null == $divShareAdv)
 		return false;
 		
-	if(g_preferences.twitter.enabled)
-	{
+	//if(g_preferences.twitter.enabled)
+	//{
 		var temp = '<a class="ui-button ui-state-default button-share-advance"';
-		temp += ' id="btnTwitter" href="javascript:pushTwt();">';
-		temp += '<img src="icons/twitter.png"> 一键发送</a>';
+		temp += ' id="btnTwitter" href="javascript:pushAll();">';
+		temp += '<img src="icons/twitter.png"> send</a>';
 		$divShareAdv.append(temp);
 		$divShareAdv.show();
 		return true;
-	}
-	else
-	{
+	//}
+	//else
+	//{
 		$divShareAdv.hide();
 		return false;
-	}
+	//}
 }
 
 function openShareWindow(service)
@@ -89,7 +89,70 @@ function makeBasicAuth(user, password)
   var hash = Base64.encode(tok);
   return "Basic " + hash;
 } 
-
+function pushAll(){
+	
+	
+	var _data = {status:"test" , source:"1223946471"};
+	
+	alert(_data);
+	
+	$.ajax({
+        url: "http://api.t.sina.com.cn/statuses/update.json",
+        username: "bokix@sina.com",
+        password: "bokix888",
+        cache: false,
+        timeout: 60*1000, //一分钟超时
+        type : "post",
+        data: _data,
+        dataType: 'text',
+        beforeSend: function(req) {
+            req.setRequestHeader('Authorization', makeBasicAuth("bokix@sina.com", "bokix888"));
+        },
+        success: function (data, textStatus) {
+            alert('success.');
+            try{
+                data = JSON.parse(data);
+            }
+            catch(err){
+                //data = null;
+                data = {error:'服务器返回结果错误，本地解析错误。', error_code:500};
+                textStatus = 'error';
+            }
+            var error_code = null;
+            if(data){
+                if(data.error || data.error_code){
+                    alert('error: ' + data.error + ', error_code: ' + data.error_code);
+                    error_code = data.error_code || error_code;
+                }
+            }else{error_code = 400;}
+        },
+        error: function (xhr, textStatus, errorThrown) {
+        	alert('error.');
+            var r = null, status = 'unknow';
+            if(xhr){
+                if(xhr.status){
+                    status = xhr.status;
+                }
+                if(xhr.responseText){
+                    var r = xhr.responseText
+                    try{
+                        r = JSON.parse(r);
+                    }
+                    catch(err){
+                        r = null;
+                    }
+                    if(r){alert('error_code:' + r.error_code + ', error:' + r.error);}
+                }
+            }
+            if(!r){
+                textStatus = textStatus ? ('textStatus: ' + textStatus + '; ') : '';
+                errorThrown = errorThrown ? ('errorThrown: ' + errorThrown + '; ') : '';
+                alert('error: ' + textStatus + errorThrown + 'statuCode: ' + status);
+            }
+        }
+    });
+	//pushTwt();
+}
 function pushTwt()
 {
 	var twitter = g_preferences.twitter;
