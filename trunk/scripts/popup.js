@@ -98,15 +98,15 @@ function pushAll(){
 	
 	$.ajax({
         url: "http://api.t.sina.com.cn/statuses/update.json",
-        username: "bokix@sina.com",
-        password: "bokix888",
+        username: "bokixtest@163.com",
+        password: "123456",
         cache: false,
         timeout: 60*1000, //一分钟超时
         type : "post",
         data: _data,
         dataType: 'text',
         beforeSend: function(req) {
-            req.setRequestHeader('Authorization', makeBasicAuth("bokix@sina.com", "bokix888"));
+            req.setRequestHeader('Authorization', makeBasicAuth("bokixtest@163.com", "123456"));
         },
         success: function (data, textStatus) {
             alert('success.');
