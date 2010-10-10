@@ -1,10 +1,8 @@
 {
    "description": {
-      "description": "\u6269\u5C55\u63CF\u8FF0",
-      "message": "\u7F29\u77ED\u7F51\u5740\u5E76\u5206\u4EAB\u5230\u4F60\u7684\u793E\u4EA4\u7F51\u7EDC\u3002\u5305\u542B goo.gl, is.gd, aa.cx \u7B49\u77ED\u7F51\u5740\u670D\u52A1\uFF0C\u5305\u542B\u65B0\u6D6A\u5FAE\u535A\uFF0C\u5F00\u5FC3\uFF0C\u8C46\u74E3\uFF0C\u4EBA\u4EBA\uFF0CTwitter, facebook, google reader \u7B49 SNS \u670D\u52A1\u3002"
+      "message": "分享到你的所有微博！"
    },
    "extName": {
-      "description": "\u6269\u5C55\u540D\u79F0",
-      "message": "\u8774\u8776\u98DE"
+      "message": "分享吧！"
    }
 }

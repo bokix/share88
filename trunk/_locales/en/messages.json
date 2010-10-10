@@ -1,10 +1,8 @@
 {
    "description": {
-      "description": "Extension Description",
-      "message": "Shorten and share a URL to your SNS. Contains several shortener and SNS, e.g., goo.gl, is.gd, twitter, facebook, sina, kaixin001, douban, etc."
+      "message": "share to your sns platform"
    },
    "extName": {
-      "description": "Extension Name",
-      "message": "Butterfly"
+      "message": "share now!"
    }
 }
