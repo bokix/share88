@@ -11,6 +11,7 @@ function copyToClipboard(text)
  
 function shortenUrl(url)
 {
+	
 	var preferences = g_preferences.parameters;
 	if(preferences == undefined)
 		var shortenService = undefined;
