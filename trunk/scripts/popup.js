@@ -90,96 +90,29 @@ function pushAll() {
 		if (g_preferences.services[service]) {
 			switch (service) {
 				case "sina" :
-					pushSina(content);
+					
+					alert('sina.');
+					alert($().jquery);
+//					alert(SinaApi);
+					
+					SinaApi.update(content,sinaCallBack);
 					break;
-				case "twitter":
-				pushTwitter(content);
-				break;
+				case "twitter" :
+					//pushTwitter(content);
+					break;
 			}
 		}
 	}
 
 	return;
-	pushSina(content);
-	// pushTwitter();
-
 }
-function pushSina(msg) {
-
-	var _data = {
-		status : msg,
-		source : CONSTS_SOURCE
-	};
-
-	$.ajax({
-				url : "http://api.t.sina.com.cn/statuses/update.json",
-				username : "bokixtest@163.com",
-				password : "bokix888",
-				cache : false,
-				timeout : 60 * 1000, // 一分钟超时
-				type : "post",
-				data : _data,
-				dataType : 'text',
-				beforeSend : function(req) {
-					req.setRequestHeader('Authorization', makeBasicAuth(
-									"bokixtest@163.com", "bokix888"));
-				},
-				success : function(data, textStatus) {
-					alert('success.');
-					try {
-						data = JSON.parse(data);
-					} catch (err) {
-						// data = null;
-						data = {
-							error : '服务器返回结果错误，本地解析错误。',
-							error_code : 500
-						};
-						textStatus = 'error';
-					}
-					var error_code = null;
-					if (data) {
-						if (data.error || data.error_code) {
-							alert('error: ' + data.error + ', error_code: '
-									+ data.error_code);
-							error_code = data.error_code || error_code;
-						}
-					} else {
-						error_code = 400;
-					}
-				},
-				error : function(xhr, textStatus, errorThrown) {
-					alert('error.');
-					var r = null, status = 'unknow';
-					if (xhr) {
-						if (xhr.status) {
-							status = xhr.status;
-						}
-						if (xhr.responseText) {
-							var r = xhr.responseText
-							try {
-								r = JSON.parse(r);
-							} catch (err) {
-								r = null;
-							}
-							if (r) {
-								alert('error_code:' + r.error_code + ', error:'
-										+ r.error);
-							}
-						}
-					}
-					if (!r) {
-						textStatus = textStatus
-								? ('textStatus: ' + textStatus + '; ')
-								: '';
-						errorThrown = errorThrown ? ('errorThrown: '
-								+ errorThrown + '; ') : '';
-						alert('error: ' + textStatus + errorThrown
-								+ 'statuCode: ' + status);
-					}
-				}
-			});
+function sinaCallBack(){
+	alert('sina call back');
+	
+	
 }
-function pushTwitter() {
+
+function pushTwitter(msg) {
 	var twitter = g_preferences.twitter;
 	if (twitter == undefined || twitter == null)
 		return;
@@ -191,15 +124,9 @@ function pushTwitter() {
 
 	// workaround: strange problem, if url include "http://" , API will return
 	// 403.
-	var content = g_data.txtContent;
-	content = content.replace("http://", "");
-
-	alert("twitter:" + content);
-	return;
 
 	var xmlhttp = new XMLHttpRequest();
-	var updateUri = twitter.API + "/statuses/update.json?status="
-			+ encodeURIComponent(content);
+	var updateUri = twitter.API + "/statuses/update.json?status="+msg;
 	xmlhttp.open("POST", updateUri, true);
 	var auth = makeBasicAuth(twitter.username, twitter.password);
 	xmlhttp.setRequestHeader('Authorization', auth);
