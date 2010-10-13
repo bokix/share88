@@ -81,8 +81,17 @@ function makeBasicAuth(user, password) {
 	var hash = Base64.encode(tok);
 	return "Basic " + hash;
 }
-
+function test(){
+	var user = JSON.parse(Util.getData("sinaUserData"));
+	for(var i in user){
+		alert(i+":" + user[i]);
+	}
+}
 function pushAll() {
+	test();
+	return;
+	
+	
 	var content = g_data.txtContent;
 	content = encodeURIComponent(content.replace("http://", ""));
 
@@ -90,14 +99,10 @@ function pushAll() {
 		if (g_preferences.services[service]) {
 			switch (service) {
 				case "sina" :
-					
-					alert('sina.');
-					alert($().jquery);
-//					alert(SinaApi);
-					
 					SinaApi.update(content,sinaCallBack);
 					break;
 				case "twitter" :
+					TwitterApi.update(content,twtCallBack);
 					//pushTwitter(content);
 					break;
 			}
@@ -106,12 +111,81 @@ function pushAll() {
 
 	return;
 }
+
+function twtCallBack(){
+	alert('twitter call back');
+	
+	
+}
+
 function sinaCallBack(){
 	alert('sina call back');
 	
 	
 }
 
+function pushSina(){
+	var _data = {status:"test" , source:"1223946471"};
+	
+	alert(_data);
+	
+	$.ajax({
+        url: "http://api.t.sina.com.cn/statuses/update.json",
+        username: "bokixtest@163.com",
+        password: "123456",
+        cache: false,
+        timeout: 60*1000, //一分钟超时
+        type : "post",
+        data: _data,
+        dataType: 'text',
+        beforeSend: function(req) {
+            req.setRequestHeader('Authorization', makeBasicAuth("bokixtest@163.com", "123456"));
+        },
+        success: function (data, textStatus) {
+            alert('success.');
+            try{
+                data = JSON.parse(data);
+            }
+            catch(err){
+                //data = null;
+                data = {error:'服务器返回结果错误，本地解析错误。', error_code:500};
+                textStatus = 'error';
+            }
+            var error_code = null;
+            if(data){
+                if(data.error || data.error_code){
+                    alert('error: ' + data.error + ', error_code: ' + data.error_code);
+                    error_code = data.error_code || error_code;
+                }
+            }else{error_code = 400;}
+        },
+        error: function (xhr, textStatus, errorThrown) {
+        	alert('error.');
+            var r = null, status = 'unknow';
+            if(xhr){
+                if(xhr.status){
+                    status = xhr.status;
+                }
+                if(xhr.responseText){
+                    var r = xhr.responseText
+                    try{
+                        r = JSON.parse(r);
+                    }
+                    catch(err){
+                        r = null;
+                    }
+                    if(r){alert('error_code:' + r.error_code + ', error:' + r.error);}
+                }
+            }
+            if(!r){
+                textStatus = textStatus ? ('textStatus: ' + textStatus + '; ') : '';
+                errorThrown = errorThrown ? ('errorThrown: ' + errorThrown + '; ') : '';
+                alert('error: ' + textStatus + errorThrown + 'statuCode: ' + status);
+            }
+        }
+    });
+	
+}
 function pushTwitter(msg) {
 	var twitter = g_preferences.twitter;
 	if (twitter == undefined || twitter == null)
@@ -205,7 +279,9 @@ function init() {
 
 	chrome.tabs.getSelected(null, function(tab) {
 				initData(tab);
-				if (tab.url.indexOf("chrome://") < 0) {
+				alert("url:" + tab.url);
+				
+				if (tab.url.indexOf("http") == 0) {
 					var response = chrome.extension.getBackgroundPage()
 							.shortenUrl(g_data.url);
 					if (response.status == "success") {
