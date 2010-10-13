@@ -40,7 +40,13 @@ function createSnsOption(service, checked)
 
 	return snsOption;
 }
- 
+function saveSina(){
+	var sinaUserData = {};
+	$(".sinaUserData input").each(function(){
+		sinaUserData[this.name] = this.value;
+	});
+	Util.saveData("sinaUserData", JSON.stringify(sinaUserData));
+}
 function saveAll()
 {
 	if(g_preferences == undefined || g_preferences == null)

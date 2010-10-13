@@ -1,26 +1,25 @@
 (function($) {
 	SinaApi = {
 		update:function(msg,completeCallBack){
-			alert('sldflsdf');
-			alert($().jquery);
-//			var _data = {
-//				status : msg,
-//				source : app_source
-//			};
-//			var user = JSON.parse(Util.getData("sinaUserData"));
-//			$.ajax({
-//				url : sinaURL.update,
-//				cache : false,
-//				timeout : 60 * 1000, // 一分钟超时
-//				type : "post",
-//				data : _data,
-//				dataType : 'text',
-//				beforeSend : function(req) {
-//					req.setRequestHeader('Authorization', makeBasicAuth(
-//									user.loginName, user.passWord));
-//				},
-//				complete:completeCallBack
-//			});
+			var _data = {
+				status : msg,
+				source : app_source
+			};
+			var user = JSON.parse(Util.getData("sinaUserData"));
+			$.ajax({
+				url : sinaURL.update,
+				cache : false,
+				timeout : 60 * 1000, // 一分钟超时
+				type : "post",
+				data : _data,
+				async : false,
+				dataType : 'json',
+				beforeSend : function(req) {
+					req.setRequestHeader('Authorization', Util.makeBasicAuth(
+									user.loginName, user.passWord));
+				},
+				complete:completeCallBack
+			});
 		}
 	};
 	
