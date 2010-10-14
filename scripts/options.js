@@ -1,175 +1,51 @@
-﻿var g_preferences = new Preferences();
+﻿function save(type) {
+	var inputClsKey = "." + type + " input"; // like: ".sina input"
+	var allUserData = Util.getObjData("allUserData") || {};
+	allUserData[type] = {};
+	$(inputClsKey).each(function() {
+				allUserData[type][this.name] = this.value;
+			});
+	Util.saveData("allUserData", JSON.stringify(allUserData));
 
-//获取下拉列表选中项的文本
-function getSelectedText(name)
-{
-	var combox = $(name)[0];
-	for(i=0;i<combox.length;i++)
-	{
-		if(combox[i].selected==true)
-		{
-			return combox[i].innerText;
+	var allServices = Util.getObjData("alreadyServices") || {};
+
+	if (!allServices[type]) {
+		allServices[type] = true;
+		showServices(type);
+		Util.saveData("alreadyServices", JSON.stringify(allServices));
+	}
+}
+function showServices(type) {
+	var srv = "<a class='bindmsg bindmsg-"+type+"'>"+type + "</a><a href='#' onclick=\"remove('" + type + "')\">"+chrome.i18n.getMessage("removeBind");
+	$(".alreadyServices ul").append("<li>" + srv + "</li>");
+}
+
+function remove(type) {
+	var c = ".alreadyServices li:contains('" + type + "')";
+	$(c).remove();
+	var allServices = Util.getObjData("alreadyServices") || {};
+	delete allServices[type];
+	Util.saveData("alreadyServices", JSON.stringify(allServices));
+	
+	var allUserData = Util.getObjData("allUserData") || {};
+	delete allUserData[type];
+	Util.saveData("allUserData", JSON.stringify(allUserData));
+}
+function loadPage() {
+	var allServices = Util.getObjData("alreadyServices") || {};
+	for (var i in allServices) {
+		if (allServices[i]) {
+			showServices(i);
 		}
 	}
 }
 
-// 设置下拉列表的选中项
-function setSelectedText(name, text)
-{
-	var combox = $(name)[0];
-	for(i=0; i<combox.length; i++)
-	{
-		if(combox[i].innerText == text)
-		{
-			return combox[i].selected = true;
-		}
-	}
-}
-
-function createSnsOption(service, checked)
-{
-	var checkedTag = "";
-	if(checked)
-		checkedTag = " checked";
-	var snsOption = '';
-	snsOption += '<tr>';
-	snsOption += '	<td width="23"><input type="checkbox" id="' + service + '"' + checkedTag + '/></td>';
-	snsOption += '	<td width="23"><img src="icons/' + service + '.png" width="16"></td>'; 
-	snsOption += '	<td>' + g_preferences.serviceNames[service]+ '</td>'; 
-	snsOption += '</tr>';
-
-	return snsOption;
-}
-function saveSina(){
-	var sinaUserData = {};
-	$(".sinaUserData input").each(function(){
-		sinaUserData[this.name] = this.value;
-	});
-	Util.saveData("sinaUserData", JSON.stringify(sinaUserData));
-}
-function saveAll()
-{
-	if(g_preferences == undefined || g_preferences == null)
-		return;
-		
-	g_preferences.parameters = 
-		{
-			auto_copy : $("#chkAutoCopy").attr("checked"),
-			show_icon : $("#chkShowIcon").attr("checked"),
-			include_title : $("#chkIncludeTitle").attr("checked"),
-			shorten_service : getSelectedText('#shortenService')
-		}
-		
-	for(var service in g_preferences.services)
-	{
-		g_preferences.services[service] = document.getElementById(service).checked;
-	}
-	
-	g_preferences.twitter =
-		{
-			enabled : $("#chkTwitter").attr("checked"),
-			API : $("#twtApi").attr("value"),
-			username : $("#twtUser").attr("value"),
-			password : $("#twtPass").attr("value"),
-			OAuth : ""
-		}
-
-	g_preferences.save();	
-	
-	chrome.extension.sendRequest({type: REQUEST_PREFERENCE_RELOAD});
-	
-}
-
-function loadDefault()
-{
-	if(g_preferences == undefined || g_preferences == null)
-		g_preferences = new Preferences();
-		
-	g_preferences.loadDefault();
-	
-	loadPage();
-}
-
-function loadChangelog()
-{
-	var xhr = new XMLHttpRequest();
-	xhr.open("GET", chrome.extension.getURL('/data/changelog.json'), false);
-	xhr.onload = function()
-	{
-		if(xhr.responseText != null)
-		{
-			var response = JSON.parse(xhr.responseText);
-			var changelog;
-			
-			if(!isNullOrUndefined(response))
-			{
-				changelog = response.changelog_cn;
-			}
-			if(!isNullOrUndefined(changelog))
-			{
-				var $changlogArea = $('#tabs-changelog');
-				for(i=changelog.length-1; i>=0; i--)
-				{
-					var revision = "<b>" + changelog[i].version + "</b>";
-					revision += "<ul>";
-					for(var j=0; j<changelog[i].changes.length; j++)
-					{
-						revision += "<li>" + changelog[i].changes[j] + "</li>"
-					}
-					revision += "</ul>"
-					$changlogArea.append(revision);
-				}
-			}
-		}
-	}
-	xhr.send();	
-}
- 
-function loadPage()
-{
-	var preferences = g_preferences.parameters;
-
-	// basic options
-	$("#chkIncludeTitle").attr("checked", preferences.include_title);
-	$("#chkShowIcon").attr("checked", preferences.show_icon);
-	$("#chkAutoCopy").attr("checked", preferences.auto_copy);
-	setSelectedText("#shortenService", preferences.shorten_service);
-	
-	// Create services.
-	var services = g_preferences.services;
-	var servicesW = g_preferences.servicesW;
-	var servicesContainer = document.getElementById("services");
-	var servicesContainerW = document.getElementById("servicesW");
-	servicesContainer.innerHTML = "";
-	servicesContainerW.innerHTML = "";
-	for (var service in services)
-	{
-		if(service in servicesW)
-			servicesContainerW.innerHTML += createSnsOption(service, services[service]);
-		else
-			servicesContainer.innerHTML += createSnsOption(service, services[service]);
-	}
-	
-	// Twitter options
-	var twitter = g_preferences.twitter;
-	$("#chkTwitter").attr("checked", twitter.enabled);
-	$("#twtApi").attr("value", twitter.API);
-	$("#twtUser").attr("value", twitter.username);
-	$("#twtPass").attr("value", twitter.password);
-	
-	// load changelog
-	loadChangelog();
-
-}
-
-function onLoadOptionPage()
-{
-	if(g_preferences == undefined || g_preferences == null)
-		g_preferences = new Preferences();
-
+function onLoadOptionPage() {
 	$("#mainTabs").tabs();
-	$("#divOptionsBottom a").button();
-	$("#divOptionsBottom #btnSave").button( "option", "icons", {primary:'ui-icon-disk'} );
+	$(".tabs-page a").button();
+	$("#divOptionsBottom #btnSave").button("option", "icons", {
+				primary : 'ui-icon-disk'
+			});
 
-	loadPage();	
+	loadPage();
 }

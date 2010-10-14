@@ -1,8 +1,11 @@
 {
-   "description": {
-      "message": "分享到你的所有微博！"
-   },
-   "extName": {
-      "message": "分享吧！"
-   }
+	"description" : {
+		"message" : "分享到你的所有微博！"
+	},
+	"extName" : {
+		"message" : "分享吧！"
+	},
+	"removeBind" : {
+		"message" : "解除绑定"
+	}
 }

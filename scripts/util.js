@@ -4,10 +4,14 @@
  * @type
  */
 var Util = {
-	getData : function(key) {
+	getObjData : function(key) {
+		return JSON.parse(this.getData(key));
+	},
+	getData : function (key){
 		return localStorage.getItem(key);
 	},
 	saveData : function(key, value) {
+		localStorage.removeItem(key);
 		localStorage.setItem(key,value);
 	},
 	makeBasicAuth : function(key, value) {

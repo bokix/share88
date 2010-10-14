@@ -5,11 +5,11 @@
 				status : msg,
 				source : app_source
 			};
-			var user = JSON.parse(Util.getData("sinaUserData"));
+			var user = Util.getObjData("allUserData")['sina'];
 			$.ajax({
 				url : sinaURL.update,
 				cache : false,
-				timeout : 60 * 1000, // 一分钟超时
+				timeout : 60 * 1000, 
 				type : "post",
 				data : _data,
 				async : false,
