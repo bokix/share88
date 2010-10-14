@@ -65,45 +65,36 @@ function addServicesAdv() {
 	// }
 }
 
-// TODO. DELETE
-function openShareWindow(service) {
-	if (service == undefined)
-		return;
-
-	var url = buildShareUrl(service, g_data);
-	window
-			.open(url, 'butterfly_' + service,
-					'toolbar=0,resizable=1,scrollbars=yes,status=1,width=600,height=400');
-}
-
-function makeBasicAuth(user, password) {
-	var tok = user + ':' + password;
-	var hash = Base64.encode(tok);
-	return "Basic " + hash;
-}
-function test(){
-	var user = JSON.parse(Util.getData("sinaUserData"));
-	for(var i in user){
-		alert(i+":" + user[i]);
-	}
-}
 function pushAll() {
-	test();
-	return;
-	
-	
 	var content = g_data.txtContent;
 	content = encodeURIComponent(content.replace("http://", ""));
-
-	for (var service in g_preferences.services) {
-		if (g_preferences.services[service]) {
+	
+	var allServices = Util.getObjData("alreadyServices");
+	if(!allServices){
+		alert("请先设置");
+		return;
+	}
+	var sum = 0;
+	for(var i in allServices){
+		sum++;
+		break;
+	}
+	if(sum==0){
+		alert("请先设置");
+		return;
+		
+	}
+	
+	for (var service in allServices) {
+		
+		if (allServices[service]) {
+			alert(service);
 			switch (service) {
 				case "sina" :
 					SinaApi.update(content,sinaCallBack);
 					break;
 				case "twitter" :
 					TwitterApi.update(content,twtCallBack);
-					//pushTwitter(content);
 					break;
 			}
 		}
@@ -122,116 +113,6 @@ function sinaCallBack(){
 	alert('sina call back');
 	
 	
-}
-
-function pushSina(){
-	var _data = {status:"test" , source:"1223946471"};
-	
-	alert(_data);
-	
-	$.ajax({
-        url: "http://api.t.sina.com.cn/statuses/update.json",
-        username: "bokixtest@163.com",
-        password: "123456",
-        cache: false,
-        timeout: 60*1000, //一分钟超时
-        type : "post",
-        data: _data,
-        dataType: 'text',
-        beforeSend: function(req) {
-            req.setRequestHeader('Authorization', makeBasicAuth("bokixtest@163.com", "123456"));
-        },
-        success: function (data, textStatus) {
-            alert('success.');
-            try{
-                data = JSON.parse(data);
-            }
-            catch(err){
-                //data = null;
-                data = {error:'服务器返回结果错误，本地解析错误。', error_code:500};
-                textStatus = 'error';
-            }
-            var error_code = null;
-            if(data){
-                if(data.error || data.error_code){
-                    alert('error: ' + data.error + ', error_code: ' + data.error_code);
-                    error_code = data.error_code || error_code;
-                }
-            }else{error_code = 400;}
-        },
-        error: function (xhr, textStatus, errorThrown) {
-        	alert('error.');
-            var r = null, status = 'unknow';
-            if(xhr){
-                if(xhr.status){
-                    status = xhr.status;
-                }
-                if(xhr.responseText){
-                    var r = xhr.responseText
-                    try{
-                        r = JSON.parse(r);
-                    }
-                    catch(err){
-                        r = null;
-                    }
-                    if(r){alert('error_code:' + r.error_code + ', error:' + r.error);}
-                }
-            }
-            if(!r){
-                textStatus = textStatus ? ('textStatus: ' + textStatus + '; ') : '';
-                errorThrown = errorThrown ? ('errorThrown: ' + errorThrown + '; ') : '';
-                alert('error: ' + textStatus + errorThrown + 'statuCode: ' + status);
-            }
-        }
-    });
-	
-}
-function pushTwitter(msg) {
-	var twitter = g_preferences.twitter;
-	if (twitter == undefined || twitter == null)
-		return;
-
-	$("#divShareAdv").hide();
-	var $divStatus = $('#divStatus');
-	$divStatus.html("发送中……");
-	var response;
-
-	// workaround: strange problem, if url include "http://" , API will return
-	// 403.
-
-	var xmlhttp = new XMLHttpRequest();
-	var updateUri = twitter.API + "/statuses/update.json?status="+msg;
-	xmlhttp.open("POST", updateUri, true);
-	var auth = makeBasicAuth(twitter.username, twitter.password);
-	xmlhttp.setRequestHeader('Authorization', auth);
-	xmlhttp.onload = function() {
-		if (xmlhttp.status == 200) {
-			var object = JSON.parse(xmlhttp.responseText);
-
-			if (object["id"] == undefined) {
-				response = {
-					status : "error",
-					message : object["error"]
-				};
-				$divStatus.html(response.message);
-			} else {
-				response = {
-					status : "success",
-					message : "success"
-				};
-				$divStatus.html("发送成功！");
-			}
-		} else {
-			response = {
-				status : "error",
-				message : "server error!"
-			};
-			$divStatus.html("发送失败！ 服务器错误。");
-		}
-	}
-	xmlhttp.send(null);
-
-	return response;
 }
 
 function createServiceIcon(service) {
@@ -279,7 +160,6 @@ function init() {
 
 	chrome.tabs.getSelected(null, function(tab) {
 				initData(tab);
-				alert("url:" + tab.url);
 				
 				if (tab.url.indexOf("http") == 0) {
 					var response = chrome.extension.getBackgroundPage()

@@ -1,8 +1,9 @@
 (function($) {
 	TwitterApi = {
 		update : function(msg, completeCallBack) {
-
-			var user = JSON.parse(Util.getData("twitterUserData"));
+			
+			var user = Util.getObjData("allUserData")['twitter'];
+			
 			if (user.proxy) {
 				api_default_domain = user.proxy;
 			}
@@ -11,12 +12,11 @@
 						api_default_domain.length - 1);
 			}
 			$.ajax({
-						url : api_default_domain + apiURL.update,
+						url : api_default_domain + apiURL.update+"?status="+msg,
 						cache : false,
 						timeout : 60 * 1000, // 一分钟超时
 						type : "post",
 						async : false,
-						data : _data,
 						dataType : 'json',
 						beforeSend : function(req) {
 							req.setRequestHeader('Authorization', Util

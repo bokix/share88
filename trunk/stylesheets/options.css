@@ -1,6 +1,6 @@
-ï»¿body, td, input, div
+body, td, input, div
 {
-	font-family: Cambria, Arial, Microsoft YaHei, å¾®è½¯é›…é»‘;
+	font-family: Cambria, Arial, Microsoft YaHei, Î¢ÈíÑÅºÚ;
 	font-weight: normal;
 	color: #777777;
 }
@@ -40,7 +40,7 @@ ul
 .tabs-page
 {
 	overflow-Y:auto; 
-	height:300px;
+	height:180px;
 }
 
 .div-main
@@ -82,3 +82,23 @@ ul
 {
 	text-align: center;
 }
+
+.alreadyServices ul{
+	list-style-type: none;	
+	font-size: 6px;
+}
+.bindmsg{
+	width:60px;
+	background-repeat:no-repeat;
+	padding-left:20px;
+	float:left;
+}
+.bindmsg-sina{
+	background-image:url(../icons/sina.png);
+}
+.bindmsg-twitter{
+	background-image:url(../icons/twitter.png);
+}
+
+
+
