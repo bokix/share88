@@ -1,7 +1,6 @@
 ﻿<html>
 	<head> 
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /> 
-		<title>蝴蝶飞</title> 
 		
 		<!-- {{{ jQuery --> 
 		<link rel="Stylesheet" type="text/css" href="jquery/css/gray/jquery-ui-1.8.custom.css">	
@@ -22,15 +21,12 @@
 	</head> 
 	
 	<body onload="init();">
-		<div id="divLoading" class="div-loading">
-			处理中……
-		</div> 
+		
 		<div id="divResponse" class="div-response">
 			<div id="divText" class="div-text">
-				<textarea id="txtContent" rows="3" class="txtContent" onchange="onTextChange();"></textarea>
+				<textarea id="txtContent" rows="3" class="txtContent" onkeyup="onTextChange();"></textarea>
 			</div>
-			<div id="divShare" class="div-share"></div>
-			<div id="divShareAdv" class="div-share"></div>
+			<div id="divShare" class="div-share">中:<span class="msgCountZh">0/140</span>英:<span class="msgCountEn">0/140</span><a href="#" onclick="pushAll()">send</a></div>
 			<div id="divStatus" class="div-status"></div>
 		</div>
 	</body> 
