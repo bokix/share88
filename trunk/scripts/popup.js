@@ -1,100 +1,30 @@
-﻿var g_preferences = new Preferences;
-var g_data;
-
-function addServices() {
-	var hasButton = false;
-
-	if (g_preferences.services != undefined) {
-		var hasButton = false;
-		var $divShare = $('#divShare');
-		if (null == $divShare)
-			return false;
-
-		// create services button
-		for (var service in g_preferences.services) {
-			if (g_preferences.services[service]) {
-				$divShare.append(createServiceIcon(service));
-				hasButton = true;
-			}
-		}
-
-		// create copy button
-		if (!g_preferences.parameters.auto_copy) {
-			var temp = '<a href="#" class="ui-button button-share button-share-plain"';
-
-			if (g_preferences.parameters.show_icon)
-				temp += ' title="拷贝到剪贴板"><img class="icon-share" src="icons/copy.png">';
-			else
-				temp += '>拷贝到剪贴板';
-
-			temp += '</a>';
-
-			$divShare.append(temp);
-			hasButton = true;
-		}
-
-		if (hasButton) {
-			$divShare.show();
-		} else {
-			$divShare.hide();
-		}
-
-	}
-
-	return hasButton;
-}
-
-function addServicesAdv() {
-	var $divShareAdv = $('#divShareAdv');
-	if (null == $divShareAdv)
-		return false;
-
-	// if(g_preferences.twitter.enabled)
-	// {
-	var temp = '<a class="ui-button ui-state-default button-share-advance"';
-	temp += ' id="btnTwitter" href="javascript:pushAll();">';
-	temp += '<img src="icons/twitter.png"> send</a>';
-	$divShareAdv.append(temp);
-	$divShareAdv.show();
-	return true;
-	// }
-	// else
-	// {
-	$divShareAdv.hide();
-	return false;
-	// }
-}
-
-function pushAll() {
-	var content = g_data.txtContent;
+﻿function pushAll() {
+	var user = Util.getObjData("allUserData")['sina'];
+	
+	var content = $('#txtContent').val();
 	content = encodeURIComponent(content.replace("http://", ""));
-	
+
 	var allServices = Util.getObjData("alreadyServices");
-	if(!allServices){
-		alert("请先设置");
-		return;
+	var noServices = true;
+	for (var i in allServices) {
+		if(allServices[i]){
+			noServices = false;
+			break;
+		}
 	}
-	var sum = 0;
-	for(var i in allServices){
-		sum++;
-		break;
+	if (noServices) {
+		appendMsg("请先绑定微博");
+		return false;
 	}
-	if(sum==0){
-		alert("请先设置");
-		return;
-		
-	}
-	
+
 	for (var service in allServices) {
-		
 		if (allServices[service]) {
-			alert(service);
 			switch (service) {
 				case "sina" :
-					SinaApi.update(content,sinaCallBack);
+					SinaApi.update(content, sinaCallBack);
 					break;
 				case "twitter" :
-					TwitterApi.update(content,twtCallBack);
+					//TwitterApi.update(content, twtCallBack);
 					break;
 			}
 		}
@@ -103,16 +33,18 @@ function pushAll() {
 	return;
 }
 
-function twtCallBack(){
+function twtCallBack() {
 	alert('twitter call back');
-	
-	
 }
 
-function sinaCallBack(){
-	alert('sina call back');
-	
-	
+function sinaCallBack(json) {
+	var msg = "sina:";
+	if(json.ok){
+		msg+="ok";
+	}else{
+		msg+=json.error;
+	}
+	appendMsg(msg);
 }
 
 function createServiceIcon(service) {
@@ -152,15 +84,17 @@ function initData(tab) {
 		txtContent : ""
 	}
 }
-
 function init() {
-	$(document).ready(function() {
-				$('#divResponse').hide();
-			});
+	if (!Util.getObjData("alreadyServices")) {
+		chrome.tabs.create({
+					url : 'options.html'
+				});
+		return false;
+	}
 
 	chrome.tabs.getSelected(null, function(tab) {
 				initData(tab);
-				
+
 				if (tab.url.indexOf("http") == 0) {
 					var response = chrome.extension.getBackgroundPage()
 							.shortenUrl(g_data.url);
@@ -172,34 +106,23 @@ function init() {
 				g_data.txtContent = g_data.title + ": " + g_data.shortenedUrl;
 
 				$('#txtContent').append(g_data.txtContent);
-
-				// Adding share buttons
-				var hasButton = addServices();
-				if (hasButton) {
-					$(".button-share").hover(function() {
-						$(this).removeClass("button-share-plain")
-								.addClass("ui-state-hover");
-					}, function() {
-						$(this).removeClass("ui-state-hover")
-								.addClass("button-share-plain");
-					});
-				}
-				var hasAdvButton = addServicesAdv();
-				if (hasButton) {
-					$(".button-share-advance").hover(function() {
-								$(this).addClass("ui-state-hover");
-							}, function() {
-								$(this).removeClass("ui-state-hover");
-							});
-				}
+				onTextChange();
 
 				$('#divResponse').show();
 				$('#divLoading').remove();
 			});
 }
-
+function appendMsg(msg) {
+	var h = $("#divStatus").html();
+	$("#divStatus").html(h + ";" + msg);
+}
+function clearMsg() {
+	$("#divStatus").empty();
+}
 function onTextChange() {
-	g_data.txtContent = $('#txtContent').attr("value");
-	if (g_preferences.parameters.auto_copy)
-		copyToClipboard(g_data.txtContent);
+	var v = $('#txtContent').val();
+	var lenEn = v.length;
+	var lenZh = Util.getByteLength(v);
+	$(".msgCountZh").html(lenZh + "/140");
+	$(".msgCountEn").html(lenEn + "/140");
 }
