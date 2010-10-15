@@ -1,25 +1,52 @@
 (function($) {
 	SinaApi = {
-		update:function(msg,completeCallBack){
+		update : function(msg, callback) {
 			var _data = {
 				status : msg,
 				source : app_source
 			};
 			var user = Util.getObjData("allUserData")['sina'];
+			alert('send.');
+			for(i in user){
+				alert(i+":" + user[i]);
+			}
+	
 			$.ajax({
-				url : sinaURL.update,
-				cache : false,
-				timeout : 60 * 1000, 
-				type : "post",
-				data : _data,
-				async : false,
-				dataType : 'json',
-				beforeSend : function(req) {
-					req.setRequestHeader('Authorization', Util.makeBasicAuth(
-									user.loginName, user.passWord));
-				},
-				complete:completeCallBack
-			});
+						url : sinaURL.update,
+						cache : false,
+						timeout : 60 * 1000,
+						type : "post",
+						data : _data,
+						async : false,
+						dataType : 'json',
+						beforeSend : function(req) {
+							req.setRequestHeader('Authorization', Util
+											.makeBasicAuth(user.loginName,
+													user.passWord));
+						},
+						success : function(data, textStatus) {
+							alert("textStatus:"+textStatus);
+							for(var i in data){
+								alert(i+":" + data[i]);
+							}
+							var r = { ok : true };
+							callback(r);
+						},
+						error : function(xhr, textStatus, errorThrown) {
+							alert("xhr:" + xhr);
+							var r = {};
+							try {
+								r = JSON.parse(xhr.responseText);
+								r = $.extend(r,{ok:false});
+							} catch (err) {
+								r = {
+									ok : false,
+									error : "parse error."
+								};
+							}
+							callback(r);
+						}
+					});
 		}
 	};
 	
