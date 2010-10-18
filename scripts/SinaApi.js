@@ -6,10 +6,10 @@
 				source : app_source
 			};
 			var user = Util.getObjData("allUserData")['sina'];
-			alert('send.');
-			for(i in user){
-				alert(i+":" + user[i]);
-			}
+//			alert('send.');
+//			for(i in user){
+//				alert(i+":" + user[i]);
+//			}
 	
 			$.ajax({
 						url : sinaURL.update,
@@ -17,7 +17,7 @@
 						timeout : 60 * 1000,
 						type : "post",
 						data : _data,
-						async : false,
+						async : true,
 						dataType : 'json',
 						beforeSend : function(req) {
 							req.setRequestHeader('Authorization', Util
@@ -25,15 +25,15 @@
 													user.passWord));
 						},
 						success : function(data, textStatus) {
-							alert("textStatus:"+textStatus);
-							for(var i in data){
-								alert(i+":" + data[i]);
-							}
+//							alert("textStatus:"+textStatus);
+//							for(var i in data){
+//								alert(i+":" + data[i]);
+//							}
 							var r = { ok : true };
 							callback(r);
 						},
 						error : function(xhr, textStatus, errorThrown) {
-							alert("xhr:" + xhr);
+//							alert("xhr:" + xhr);
 							var r = {};
 							try {
 								r = JSON.parse(xhr.responseText);
