@@ -24,7 +24,7 @@
 					SinaApi.update(content, sinaCallBack);
 					break;
 				case "twitter" :
-					//TwitterApi.update(content, twtCallBack);
+					TwitterApi.update(content, twtCallBack);
 					break;
 			}
 		}
@@ -33,8 +33,15 @@
 	return;
 }
 
-function twtCallBack() {
-	alert('twitter call back');
+function twtCallBack(json) {
+	var msg = "twitter:";
+	if(json.ok){
+		msg+="ok";
+	}else{
+		msg+=json.error;
+	}
+	clearMsg();
+	appendMsg(msg);
 }
 
 function sinaCallBack(json) {
@@ -44,6 +51,7 @@ function sinaCallBack(json) {
 	}else{
 		msg+=json.error;
 	}
+	clearMsg();
 	appendMsg(msg);
 }
 
@@ -114,7 +122,7 @@ function init() {
 }
 function appendMsg(msg) {
 	var h = $("#divStatus").html();
-	$("#divStatus").html(h + ";" + msg);
+	$("#divStatus").html(h+ msg);
 }
 function clearMsg() {
 	$("#divStatus").empty();

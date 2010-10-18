@@ -1,6 +1,6 @@
 (function($) {
 	TwitterApi = {
-		update : function(msg, completeCallBack) {
+		update : function(msg, callback) {
 			
 			var user = Util.getObjData("allUserData")['twitter'];
 			
@@ -14,20 +14,34 @@
 			$.ajax({
 						url : api_default_domain + apiURL.update+"?status="+msg,
 						cache : false,
-						timeout : 60 * 1000, // 一分钟超时
 						type : "post",
-						async : false,
+						async : true,
 						dataType : 'json',
 						beforeSend : function(req) {
 							req.setRequestHeader('Authorization', Util
 											.makeBasicAuth(user.loginName,
 													user.passWord));
 						},
-						complete : completeCallBack
+						success : function(data, textStatus) {
+							var r = { ok : true };
+							callback(r);
+						},
+						error : function(xhr, textStatus, errorThrown) {
+							var r = {};
+							try {
+								r = JSON.parse(xhr.responseText);
+								r = $.extend(r,{ok:false});
+							} catch (err) {
+								r = {
+									ok : false,
+									error : "parse error."
+								};
+							}
+							callback(r);
+						}
 					});
 		}
 	};
-
 	var api_default_domain = "https://api.twitter.com";
 
 	var apiURL = {

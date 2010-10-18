@@ -16,13 +16,15 @@
 	}
 }
 function showServices(type) {
-	var srv = "<a class='bindmsg bindmsg-"+type+"'>"+type + "</a><a href='#' onclick=\"remove('" + type + "')\">"+chrome.i18n.getMessage("removeBind");
-	$(".alreadyServices ul").append("<li>" + srv + "</li>");
+	var allUserData = Util.getObjData("allUserData") || {};
+	var srv = "<a class='bindmsg bindmsg-"+type+"'>"+allUserData[type].loginName + "</a><a href='#' onclick=\"remove('" + type + "')\">"+chrome.i18n.getMessage("removeBind");
+	$(".alreadyServices ul").append("<li class='"+type+"'>" + srv + "</li>");
 }
 
 function remove(type) {
-	var c = ".alreadyServices li:contains('" + type + "')";
-	$(c).remove();
+	//var c = ".alreadyServices li:contains('" + type + "')";
+	$(".alreadyServices").find("."+type).remove();
+	//$(c).remove();
 	var allServices = Util.getObjData("alreadyServices") || {};
 	delete allServices[type];
 	Util.saveData("alreadyServices", JSON.stringify(allServices));
@@ -31,6 +33,7 @@ function remove(type) {
 	delete allUserData[type];
 	Util.saveData("allUserData", JSON.stringify(allUserData));
 }
+
 function loadPage() {
 	var allServices = Util.getObjData("alreadyServices") || {};
 	for (var i in allServices) {
