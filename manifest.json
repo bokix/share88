@@ -15,5 +15,5 @@
    "name": "__MSG_extName__",
    "options_page": "options.html",
    "permissions": [ "tabs", "http://*/", "https://*/" ],
-   "version": "0.0.10"
+   "version": "0.0.11"
 }
