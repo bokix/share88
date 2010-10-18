@@ -88,7 +88,7 @@ ul
 	font-size: 6px;
 }
 .bindmsg{
-	width:60px;
+	width:160px;
 	background-repeat:no-repeat;
 	padding-left:20px;
 	float:left;
@@ -99,6 +99,3 @@ ul
 .bindmsg-twitter{
 	background-image:url(../icons/twitter.png);
 }
-
-
-
