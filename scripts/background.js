@@ -1,22 +1,7 @@
-﻿var g_preferences = new Preferences();
-
-function copyToClipboard(text)
-{
-	var input = document.getElementById('url');
-	input.value = text;					
-	input.focus();
-	input.select();
-	document.execCommand('Copy');
-}
- 
-function shortenUrl(url)
+﻿function shortenUrl(url)
 {
 	
-	var preferences = g_preferences.parameters;
-	if(preferences == undefined)
-		var shortenService = undefined;
-	else
-		var shortenService = preferences.shorten_service;
+	var shortenService = Util.getData('shortServices');
 	
 	switch(shortenService)
 	{
@@ -27,7 +12,7 @@ function shortenUrl(url)
 			return shortenUrlByAacx(url);
 			break;
 		case "goo.gl":
-		case undefined:
+		default:
 			return shortenUrlByGoogl(url);
 			break;
 	}
