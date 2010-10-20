@@ -129,8 +129,8 @@ function clearMsg() {
 }
 function onTextChange() {
 	var v = $('#txtContent').val();
-	var lenEn = v.length;
-	var lenZh = Util.getByteLength(v);
+	var lenZh = v.length;
+	var lenEn = Util.getByteLength(v);
 	$(".msgCountZh").html(lenZh + "/140");
 	$(".msgCountEn").html(lenEn + "/140");
 }
