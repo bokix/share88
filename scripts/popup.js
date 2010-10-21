@@ -73,16 +73,6 @@ function createServiceIcon(service) {
 	return iconHtml;
 }
 
-function copyToClipboard(content) {
-	chrome.extension.sendRequest({
-				type : REQUEST_COPY,
-				content : content
-			});
-
-	if (!g_preferences.parameters.auto_copy)
-		window.close();
-}
-
 function initData(tab) {
 	g_data = {
 		id : tab.id,
@@ -90,7 +80,7 @@ function initData(tab) {
 		title : tab.title,
 		shortenedUrl : "",
 		txtContent : ""
-	}
+	};
 }
 function init() {
 	if (!Util.getObjData("alreadyServices")) {
