@@ -1,60 +1,23 @@
 ﻿function pushAll() {
-	var user = Util.getObjData("allUserData")['sina'];
+	/**
+	chrome.tabs.getSelected(null, function (tab){
+		console.log("tab id:::::::::::::" + JSON.stringify(tab));
+		chrome.browserAction.setBadgeText({text:"2/5",tabId:tab.id});
+	
+	});
+	chrome.browserAction.setTitle({title:"<b>dkdkdkd</b>kdkf\nkk<ul><li>1</li><li>2</li></ul>"});
+	return;
+	*/
 	
 	var content = $('#txtContent').val();
 	content = encodeURIComponent(content.replace("http://", ""));
+	chrome.extension.getBackgroundPage().sendMsg(content);
 
-	var allServices = Util.getObjData("alreadyServices");
-	var noServices = true;
-	for (var i in allServices) {
-		if(allServices[i]){
-			noServices = false;
-			break;
-		}
-	}
-	if (noServices) {
-		appendMsg("请先绑定微博");
-		return false;
-	}
-
-	for (var service in allServices) {
-		if (allServices[service]) {
-			switch (service) {
-				case "sina" :
-					SinaApi.update(content, sinaCallBack);
-					break;
-				case "twitter" :
-					TwitterApi.update(content, twtCallBack);
-					break;
-			}
-		}
-	}
-
-	return;
+	window.close();
+	//return;
 }
 
-function twtCallBack(json) {
-	var msg = "twitter:";
-	if(json.ok){
-		msg+="ok";
-	}else{
-		msg+=json.error;
-	}
-	clearMsg();
-	appendMsg(msg);
-}
-
-function sinaCallBack(json) {
-	var msg = "sina:";
-	if(json.ok){
-		msg+="ok";
-	}else{
-		msg+=json.error;
-	}
-	clearMsg();
-	appendMsg(msg);
-}
-
+/**
 function createServiceIcon(service) {
 	var iconHtml = "";
 
@@ -72,7 +35,7 @@ function createServiceIcon(service) {
 
 	return iconHtml;
 }
-
+*/
 function initData(tab) {
 	g_data = {
 		id : tab.id,
@@ -83,6 +46,7 @@ function initData(tab) {
 	};
 }
 function init() {
+
 	if (!Util.getObjData("alreadyServices")) {
 		chrome.tabs.create({
 					url : 'options.html'
@@ -93,6 +57,7 @@ function init() {
 	chrome.tabs.getSelected(null, function(tab) {
 				initData(tab);
 
+				/**
 				if (tab.url.indexOf("http") == 0) {
 					var response = chrome.extension.getBackgroundPage()
 							.shortenUrl(g_data.url);
@@ -100,7 +65,7 @@ function init() {
 						g_data.shortenedUrl = response.message;
 					}
 				}
-
+				*/
 				g_data.txtContent = g_data.title + ": " + g_data.shortenedUrl;
 
 				$('#txtContent').append(g_data.txtContent);
@@ -112,7 +77,7 @@ function init() {
 }
 function appendMsg(msg) {
 	var h = $("#divStatus").html();
-	$("#divStatus").html(h+ msg);
+	$("#divStatus").html(h + msg);
 }
 function clearMsg() {
 	$("#divStatus").empty();
