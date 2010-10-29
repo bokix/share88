@@ -1,3 +1,6 @@
+/**
+ * @include "Result.js"
+ */
 (function($) {
 	TwitterApi = {
 		update : function(msg, callback) {
@@ -11,11 +14,14 @@
 				api_default_domain = api_default_domain.substring(0,
 						api_default_domain.length - 1);
 			}
+			var result = new Result();
+			result.srvName="twitter";
 			$.ajax({
 						url : api_default_domain + apiURL.update+"?status="+msg,
 						cache : false,
 						type : "post",
 						async : true,
+						timeout : 20 * 1000,
 						dataType : 'json',
 						beforeSend : function(req) {
 							req.setRequestHeader('Authorization', Util
@@ -23,21 +29,28 @@
 													user.passWord));
 						},
 						success : function(data, textStatus) {
-							var r = { ok : true };
-							callback(r);
+							result.ok = true;
+							result.data = data;
+							result.responseText = textStatus;
+							
+							callback(result);
 						},
 						error : function(xhr, textStatus, errorThrown) {
-							var r = {};
+							result.ok = false;
+							console.log(xhr);
+							console.log(textStatus);
+							console.log(errorThrown);
+							
 							try {
-								r = JSON.parse(xhr.responseText);
-								r = $.extend(r,{ok:false});
+								result.responseText = textStatus;
+								if(xhr.responseText){
+									result.data = JSON.parse(xhr.responseText);
+									result.responseText = result.data.error;
+								}
 							} catch (err) {
-								r = {
-									ok : false,
-									error : "parse error."
-								};
+								result.responseText = "parse error.";
 							}
-							callback(r);
+							callback(result);
 						}
 					});
 		}

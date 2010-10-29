@@ -1,6 +1,5 @@
-﻿﻿var g_preferences = new Preferences;
-var g_data;
-
+﻿var g_data;
+	
 function addServices()
 {		
 	var hasButton = false;

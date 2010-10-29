@@ -1,23 +1,26 @@
+/**
+ * @include "Result.js"
+ */
+ 
 (function($) {
-	SinaApi = {
+	Follow5Api = {
 		update : function(msg, callback) {
 			var _data = {
 				status : msg,
 				source : app_source
 			};
-			var user = Util.getObjData("allUserData")['sina'];
-			alert('send.');
-			for(i in user){
-				alert(i+":" + user[i]);
-			}
+			var user = Util.getObjData("allUserData")['follow5'];
 	
+			var result = new Result();
+			result.srvName="sina";
+		
 			$.ajax({
 						url : sinaURL.update,
 						cache : false,
-						timeout : 60 * 1000,
+						timeout : 20 * 1000,
 						type : "post",
 						data : _data,
-						async : false,
+						async : true,
 						dataType : 'json',
 						beforeSend : function(req) {
 							req.setRequestHeader('Authorization', Util
@@ -25,34 +28,39 @@
 													user.passWord));
 						},
 						success : function(data, textStatus) {
-							alert("textStatus:"+textStatus);
-							for(var i in data){
-								alert(i+":" + data[i]);
-							}
-							var r = { ok : true };
-							callback(r);
+							result.ok = true;
+							result.data = data;
+							result.responseText = textStatus;
+							
+							callback(result);
 						},
 						error : function(xhr, textStatus, errorThrown) {
-							alert("xhr:" + xhr);
-							var r = {};
+							result.ok = false;
+							console.log("--------sina--------");
+							console.log(xhr);
+							console.log(textStatus);
+							console.log(errorThrown);
 							try {
-								r = JSON.parse(xhr.responseText);
-								r = $.extend(r,{ok:false});
+								result.responseText = textStatus;
+								if(xhr.responseText){
+									result.data = JSON.parse(xhr.responseText);
+									result.responseText = result.data.error;
+								}
 							} catch (err) {
-								r = {
-									ok : false,
-									error : "parse error."
-								};
+								result.responseText = "parse error.";
 							}
-							callback(r);
+							callback(result);
 						}
 					});
 		}
 	};
 	
-	var app_source = "1223946471";
+	var api_key = "B1FF0C2256BAD566";
+	
+	
 	var domain_sina = 'http://t.sina.com.cn';
-	var api_domain_sina = 'http://api.t.sina.com.cn';
+	//var api_domain_sina = 'http://api.t.sina.com.cn';
+	var api_domain_sina = 'http://www.twitter.com';
 	
 	var sinaURL = {    
         public_timeline:        api_domain_sina + '/statuses/public_timeline.json',
