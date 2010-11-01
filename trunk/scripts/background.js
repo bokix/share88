@@ -11,11 +11,11 @@ function getDoneServices() {
 }
 function background() {
 	var title = chrome.i18n.getMessage("extName");
-	chrome.contextMenus.create({
-				"title" : title,
-				"contexts" : ["all"],
-				"onclick" : contextMenuClick
-			});
+	chrome.contextMenus.create( {
+		"title" : title,
+		"contexts" : [ "all" ],
+		"onclick" : contextMenuClick
+	});
 
 }
 function contextMenuClick(info, tab) {
@@ -48,12 +48,30 @@ function contextMenuClick(info, tab) {
 }
 function mediaClick(info, tab) {
 	log("media click.");
+
+	var srcurl = info.srcUrl;
+	var shortenedUrl = srcurl;
+	var response = shortenUrl(srcurl);
+	if (response.status == "success") {
+		shortenedUrl = response.message;
+	}
+
+	var text = chrome.i18n.getMessage("share") + ":"+shortenedUrl.replace("http://", "").replace("https://", "");
+	sendMsg(text);
+
 	return;
 }
 function linkClick(info, tab) {
 	log("link click.");
-	return;
+	var linkurl = info.linkUrl;
+	var shortenedUrl = linkurl;
+	var response = shortenUrl(linkurl);
+	if (response.status == "success") {
+		shortenedUrl = response.message;
+	}
 
+	var text = chrome.i18n.getMessage("share") + ":"+shortenedUrl.replace("http://", "").replace("https://", "");
+	sendMsg(text);
 }
 function selectionClick(info, tab) {
 	log("selection click.");
@@ -76,59 +94,59 @@ function pageClick(info, tab) {
 		shortenedUrl = response.message;
 	}
 
-	var text = "分享页面-" + title + ":"
+	var text = chrome.i18n.getMessage("share") + ":"+ title + ":"
 			+ shortenedUrl.replace("http://", "").replace("https://", "");
 	sendMsg(text);
 }
 
 function sendMsg(content) {
-	//content = "哈哈哈哈";
+	// content = "哈哈哈哈";
 	log("send:" + content);
-	
+
 	chrome.tabs.getSelected(null, function(tab) {
-				currentTabId = tab.id;
-				chrome.browserAction.setBadgeText({
-							text : "0/0",
-							tabId : currentTabId
-						});
-				chrome.browserAction.setBadgeBackgroundColor({
-							color : [255, 215, 0, 255],
-							tabId : currentTabId
-						});
-			});
+		currentTabId = tab.id;
+		chrome.browserAction.setBadgeText( {
+			text : "0/0",
+			tabId : currentTabId
+		});
+		chrome.browserAction.setBadgeBackgroundColor( {
+			color : [ 255, 215, 0, 255 ],
+			tabId : currentTabId
+		});
+	});
 
 	doneServices = new Array();
 	var allServices = Util.getObjData("alreadyServices");
 
 	var sumServ = 0;
-	for (var i in allServices) {
+	for ( var i in allServices) {
 		if (allServices[i]) {
 			sumServ++;
 		}
 	}
 
 	if (sumServ == 0) {
-		chrome.tabs.create({
-					url : 'options.html'
-				});
+		chrome.tabs.create( {
+			url : 'options.html'
+		});
 		return false;
 	}
 
 	allServicesLength = sumServ;
 
-	for (var service in allServices) {
+	for ( var service in allServices) {
 		if (allServices[service]) {
 			switch (service) {
-				case "sina" :
-					SinaApi.update(content, sendCallback);
-					break;
-				case "twitter" :
-					var s = encodeURIComponent(content);
-					TwitterApi.update(s, sendCallback);
-					break;
-				case "follow5" :
-					Follow5Api.update(content, sendCallback);
-					break;
+			case "sina":
+				SinaApi.update(content, sendCallback);
+				break;
+			case "twitter":
+				var s = encodeURIComponent(content);
+				TwitterApi.update(s, sendCallback);
+				break;
+			case "follow5":
+				Follow5Api.update(content, sendCallback);
+				break;
 			}
 		}
 	}
@@ -147,7 +165,7 @@ function sendCallback(/* Result */result) {
 	// log(doneServices);
 	var sumError = 0;
 	var sumSuccess = 0;
-	for (var i in doneServices) {
+	for ( var i in doneServices) {
 		if (!doneServices[i].ok) {
 			sumError++;
 		}
@@ -158,27 +176,21 @@ function sendCallback(/* Result */result) {
 	var col = [];
 
 	if (doneServices.length == allServicesLength) { // all task done.
-
-		if (sumError == 0) { // all ok.
-			txt = allServicesLength + "/" + allServicesLength;
-			col = [0, 255, 0, 255];
-		} else { // some task error.
-			txt = sumSuccess + "/" + allServicesLength;
-			col = [255, 0, 0, 255];
-		}
+		txt = sumSuccess + "/" + allServicesLength;
+		col = [ 0, 255, 0, 255 ];
 	} else {
 		txt = sumSuccess + "/" + doneServices.length;
-		col = [255, 215, 0, 255];
+		col = [ 255, 215, 0, 255 ];
 	}
 
-	chrome.browserAction.setBadgeText({
-				text : txt,
-				tabId : currentTabId
-			});
-	chrome.browserAction.setBadgeBackgroundColor({
-				color : col,
-				tabId : currentTabId
-			});
+	chrome.browserAction.setBadgeText( {
+		text : txt,
+		tabId : currentTabId
+	});
+	chrome.browserAction.setBadgeBackgroundColor( {
+		color : col,
+		tabId : currentTabId
+	});
 }
 
 function shortenUrl(url) {
@@ -186,16 +198,16 @@ function shortenUrl(url) {
 	var shortenService = Util.getData('shortServices');
 
 	switch (shortenService) {
-		case "is.gd" :
-			return shortenUrlByIsgd(url);
-			break;
-		case "aa.cx" :
-			return shortenUrlByAacx(url);
-			break;
-		case "goo.gl" :
-		default :
-			return shortenUrlByGoogl(url);
-			break;
+	case "is.gd":
+		return shortenUrlByIsgd(url);
+		break;
+	case "aa.cx":
+		return shortenUrlByAacx(url);
+		break;
+	case "goo.gl":
+	default:
+		return shortenUrlByGoogl(url);
+		break;
 	}
 }
 
@@ -204,8 +216,8 @@ function shortenUrlByGoogl(url) {
 
 	var xmlhttp = new XMLHttpRequest();
 	xmlhttp.open("POST", "http://goo.gl/api/url?user=toolbar@google.com&url="
-					+ encodeURIComponent(url) + "&auth_token="
-					+ getAuthToken(url), false);
+			+ encodeURIComponent(url) + "&auth_token=" + getAuthToken(url),
+			false);
 	xmlhttp.onload = function() {
 		var object = JSON.parse(xmlhttp.responseText);
 
@@ -229,7 +241,7 @@ function shortenUrlByIsgd(url) {
 	var response;
 	var xmlhttp = new XMLHttpRequest();
 	xmlhttp.open("GET", "http://is.gd/api.php?longurl="
-					+ encodeURIComponent(url), false);
+			+ encodeURIComponent(url), false);
 	xmlhttp.onload = function() {
 		if (200 == xmlhttp.status)
 			response = {

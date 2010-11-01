@@ -5,6 +5,9 @@
 	"extName" : {
 		"message" : "分享吧！"
 	},
+	"share" : {
+		"message" : "分享"
+	},
 	"removeBind" : {
 		"message" : "解除绑定"
 	}

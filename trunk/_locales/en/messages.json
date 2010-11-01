@@ -4,5 +4,11 @@
    },
    "extName": {
       "message": "share now!"
-   }
+   },
+   "share" : {
+		"message" : "share"
+	},
+   "removeBind" : {
+		"message" : "remove"
+	}
 }
