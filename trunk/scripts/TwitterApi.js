@@ -15,13 +15,17 @@
 						api_default_domain.length - 1);
 			}
 			var result = new Result();
+			
+			//console.log("twitter api default domain:" + api_default_domain);
+			
+			
 			result.srvName="twitter";
 			$.ajax({
 						url : api_default_domain + apiURL.update+"?status="+msg,
 						cache : false,
 						type : "post",
 						async : true,
-						timeout : 20 * 1000,
+						timeout : 30 * 1000,
 						dataType : 'json',
 						beforeSend : function(req) {
 							req.setRequestHeader('Authorization', Util
@@ -37,10 +41,6 @@
 						},
 						error : function(xhr, textStatus, errorThrown) {
 							result.ok = false;
-							console.log(xhr);
-							console.log(textStatus);
-							console.log(errorThrown);
-							
 							try {
 								result.responseText = textStatus;
 								if(xhr.responseText){
