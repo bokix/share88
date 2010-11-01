@@ -9,11 +9,11 @@
 	return;
 	*/
 	
+	window.close();
 	var content = $('#txtContent').val();
-	content = encodeURIComponent(content.replace("http://", ""));
+	content = content.replace("http://", "").replace("https://","");
 	chrome.extension.getBackgroundPage().sendMsg(content);
 
-	window.close();
 	//return;
 }
 
@@ -48,6 +48,7 @@ function initData(tab) {
 function init() {
 
 	if (!Util.getObjData("alreadyServices")) {
+		window.close();
 		chrome.tabs.create({
 					url : 'options.html'
 				});
@@ -74,10 +75,29 @@ function init() {
 				$('#divResponse').show();
 				$('#divLoading').remove();
 			});
+	initLog();
 }
-function appendMsg(msg) {
-	var h = $("#divStatus").html();
-	$("#divStatus").html(h + msg);
+function initLog(){
+	clearMsg();
+	var doneServices = chrome.extension.getBackgroundPage().getDoneServices();
+	if(!doneServices || doneServices.length==0){
+		return;
+	}
+	var msg = "";
+	for(var i = 0;i<doneServices.length;i++){
+		if(!doneServices[i].ok){
+			msg+=doneServices[i].srvName+":"+doneServices[i].responseText;
+		}
+	}
+	if(msg==""){
+		return ;
+	}
+	msg = "发送错误：" + msg;
+	console.log("error msg:" + msg);
+	setMsg(msg);
+}
+function setMsg(msg) {
+	$("#divStatus").html(msg);
 }
 function clearMsg() {
 	$("#divStatus").empty();

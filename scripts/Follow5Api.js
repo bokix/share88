@@ -7,17 +7,18 @@
 		update : function(msg, callback) {
 			var _data = {
 				status : msg,
-				source : app_source
+				source : "share8",
+				api_key: api_key
 			};
 			var user = Util.getObjData("allUserData")['follow5'];
 	
 			var result = new Result();
-			result.srvName="sina";
+			result.srvName="follow5";
 		
 			$.ajax({
-						url : sinaURL.update,
+						url : apiURL.update,
 						cache : false,
-						timeout : 20 * 1000,
+						timeout : 60 * 1000,
 						type : "post",
 						data : _data,
 						async : true,
@@ -36,10 +37,6 @@
 						},
 						error : function(xhr, textStatus, errorThrown) {
 							result.ok = false;
-							console.log("--------sina--------");
-							console.log(xhr);
-							console.log(textStatus);
-							console.log(errorThrown);
 							try {
 								result.responseText = textStatus;
 								if(xhr.responseText){
@@ -58,32 +55,10 @@
 	var api_key = "B1FF0C2256BAD566";
 	
 	
-	var domain_sina = 'http://t.sina.com.cn';
-	//var api_domain_sina = 'http://api.t.sina.com.cn';
-	var api_domain_sina = 'http://www.twitter.com';
+	var api_domain = 'http://api.follow5.com/api';
 	
-	var sinaURL = {    
-        public_timeline:        api_domain_sina + '/statuses/public_timeline.json',
-        friends_timeline:       api_domain_sina + '/statuses/friends_timeline.json',
-        comments_timeline:      api_domain_sina + '/statuses/comments_timeline.json',
-        user_timeline:          api_domain_sina + '/statuses/user_timeline.json',
-        mentions:               api_domain_sina + '/statuses/mentions.json',
-        favorite:               api_domain_sina + '/favorite.json',
-        favorites_create:       api_domain_sina + '/favorites/create.json',
-        favorites_destroy:      api_domain_sina + '/favorites/destroy/{id}.json',
-        counts:                 api_domain_sina + '/statuses/counts.json',
-        update:                 api_domain_sina + '/statuses/update.json',
-        upload:                 api_domain_sina + '/statuses/upload.json',
-        repost:                 api_domain_sina + '/statuses/repost.json',
-        comment:                api_domain_sina + '/statuses/comment.json',
-        comment_destroy:        api_domain_sina + '/statuses/comment_destroy/{id}.json',
-        comments:               api_domain_sina + '/statuses/comments.json',
-        destroy:                api_domain_sina + '/statuses/destroy.json',
-        destroy_msg:            api_domain_sina + '/direct_messages/destroy/{id}.json',
-        direct_messages:        api_domain_sina + '/direct_messages.json',
-        new_message:            api_domain_sina + '/direct_messages/new.json',
-        verify_credentials:     api_domain_sina + '/account/verify_credentials.json',
-        detailUrl:        domain_sina + '/jump?aid=detail&twId=',
-        searchUrl:        domain_sina + '/search/'
+	var apiURL = {    
+        update:                 api_domain + '/statuses/update.json',
+        upload:                 api_domain + '/statuses/upload.json'
 	};
 })(jQuery);

@@ -4,47 +4,109 @@
 
 var doneServices = [];
 var allServicesLength = 0;
+var currentTabId = -999;
 
-function background(){
+function getDoneServices() {
+	return doneServices;
+}
+function background() {
 	var title = chrome.i18n.getMessage("extName");
-	chrome.contextMenus.create({"title": title, "contexts":["selection"],
-                                       "onclick": selectionOnClick});
-//	chrome.contextMenus.create({"title": title, "contexts":["image"],
-//                                       "onclick": imageOnClick});
-	
+	chrome.contextMenus.create({
+				"title" : title,
+				"contexts" : ["all"],
+				"onclick" : contextMenuClick
+			});
+
 }
-function imageOnClick(info,tab){
-	log("--------------imageOnClick--------------");
+function contextMenuClick(info, tab) {
 	log(JSON.stringify(info));
 	log(JSON.stringify(tab));
-	
-	sendMsg(info.srcUrl);
-}
-function selectionOnClick(info, tab){
-	log("--------------selectionOnClick--------------");
-	log(JSON.stringify(info));
-	log(JSON.stringify(tab));
-	
+
+	var type = info.mediaType;
+	// var pageurl=info.pageUrl;
+	// var srcurl=info.srcUrl;
+	// var title=tab.title||"";
+	// var purl=tab.url||"";
 	var text = info.selectionText;
 	var link = info.linkUrl;
-	
-	text = encodeURIComponent(text.replace("http://", ""));
-	sendMsg(text);
-	
+
+	if (text) {
+		// 优先以选择文本的方式发送
+		selectionClick(info, tab);
+	} else if (type) {
+		// One of 'image', 'video', or 'audio'
+		mediaClick(info, tab);
+	} else if (link) {
+		linkClick(info, tab);
+	} else {
+		pageClick(info, tab);
+	}
+
+	// text = encodeURIComponent(text.replace("http://", ""));
+	// sendMsg(text);
+
 }
-function sendMsg(content){
-	doneServices = [];
+function mediaClick(info, tab) {
+	log("media click.");
+	return;
+}
+function linkClick(info, tab) {
+	log("link click.");
+	return;
+
+}
+function selectionClick(info, tab) {
+	log("selection click.");
+	var text = info.selectionText;
+	text = text.replace("http://", "").replace("https://", "");
+	if (text.length > 140) {
+		text = text.substr(0, 130) + ".....";
+	}
+	log("selection:" + text);
+	sendMsg(text);
+}
+function pageClick(info, tab) {
+	log("page click.");
+
+	var title = tab.title || "";
+	var purl = tab.url || "";
+	var shortenedUrl = purl;
+	var response = shortenUrl(purl);
+	if (response.status == "success") {
+		shortenedUrl = response.message;
+	}
+
+	var text = "分享页面-" + title + ":"
+			+ shortenedUrl.replace("http://", "").replace("https://", "");
+	sendMsg(text);
+}
+
+function sendMsg(content) {
+	//content = "哈哈哈哈";
+	log("send:" + content);
+	
+	chrome.tabs.getSelected(null, function(tab) {
+				currentTabId = tab.id;
+				chrome.browserAction.setBadgeText({
+							text : "0/0",
+							tabId : currentTabId
+						});
+				chrome.browserAction.setBadgeBackgroundColor({
+							color : [255, 215, 0, 255],
+							tabId : currentTabId
+						});
+			});
+
+	doneServices = new Array();
 	var allServices = Util.getObjData("alreadyServices");
-	
-	log(JSON.stringify(allServices));
-	
+
 	var sumServ = 0;
 	for (var i in allServices) {
-		if(allServices[i]){
+		if (allServices[i]) {
 			sumServ++;
 		}
 	}
-	
+
 	if (sumServ == 0) {
 		chrome.tabs.create({
 					url : 'options.html'
@@ -53,9 +115,7 @@ function sendMsg(content){
 	}
 
 	allServicesLength = sumServ;
-	chrome.browserAction.setBadgeText({text:"0/"+allServicesLength});
-	chrome.browserAction.setBadgeBackgroundColor({color:[255,215,0,255]});
-	
+
 	for (var service in allServices) {
 		if (allServices[service]) {
 			switch (service) {
@@ -63,7 +123,11 @@ function sendMsg(content){
 					SinaApi.update(content, sendCallback);
 					break;
 				case "twitter" :
-					TwitterApi.update(content, sendCallback);
+					var s = encodeURIComponent(content);
+					TwitterApi.update(s, sendCallback);
+					break;
+				case "follow5" :
+					Follow5Api.update(content, sendCallback);
 					break;
 			}
 		}
@@ -72,114 +136,139 @@ function sendMsg(content){
 	return;
 }
 
-function sendCallback(/*Result*/result) {
-	
-	log("send call bacl execute...");
+function sendCallback(/* Result */result) {
+
+	log("send call bacl execute..." + result.srvName);
 	log(result);
 	log("-------------------------");
-	
-	
+
 	doneServices[doneServices.length] = result;
-	
-	log(doneServices);
-	
-	if(doneServices.length==allServicesLength){ //all task done.
-		
-		var sumError = 0;
-		for(var i in doneServices){
-			if(!doneServices[i].ok){
-				sumError++;
-			}
+
+	// log(doneServices);
+	var sumError = 0;
+	var sumSuccess = 0;
+	for (var i in doneServices) {
+		if (!doneServices[i].ok) {
+			sumError++;
 		}
-		if(sumError == 0){ // all ok.
-			chrome.browserAction.setBadgeText({text:allServicesLength+"/"+allServicesLength});
-	    	chrome.browserAction.setBadgeBackgroundColor({color:[0,255,0,255]});
-		}else{ // some task error.
-			chrome.browserAction.setBadgeText({text:(allServicesLength-sumError)+"/"+allServicesLength});
-	    	chrome.browserAction.setBadgeBackgroundColor({color:[255,0,0,255]});
-		}
-	}else{
-		chrome.browserAction.setBadgeText({text:doneServices.length+"/"+allServicesLength});
-	    chrome.browserAction.setBadgeBackgroundColor({color:[255,215,0,255]});
 	}
-	
+	sumSuccess = doneServices.length - sumError;
+
+	var txt = "";
+	var col = [];
+
+	if (doneServices.length == allServicesLength) { // all task done.
+
+		if (sumError == 0) { // all ok.
+			txt = allServicesLength + "/" + allServicesLength;
+			col = [0, 255, 0, 255];
+		} else { // some task error.
+			txt = sumSuccess + "/" + allServicesLength;
+			col = [255, 0, 0, 255];
+		}
+	} else {
+		txt = sumSuccess + "/" + doneServices.length;
+		col = [255, 215, 0, 255];
+	}
+
+	chrome.browserAction.setBadgeText({
+				text : txt,
+				tabId : currentTabId
+			});
+	chrome.browserAction.setBadgeBackgroundColor({
+				color : col,
+				tabId : currentTabId
+			});
 }
 
+function shortenUrl(url) {
 
-function shortenUrl(url)
-{
-	
 	var shortenService = Util.getData('shortServices');
-	
-	switch(shortenService)
-	{
-		case "is.gd":
+
+	switch (shortenService) {
+		case "is.gd" :
 			return shortenUrlByIsgd(url);
 			break;
-		case "aa.cx":
+		case "aa.cx" :
 			return shortenUrlByAacx(url);
 			break;
-		case "goo.gl":
-		default:
+		case "goo.gl" :
+		default :
 			return shortenUrlByGoogl(url);
 			break;
 	}
 }
 
-function shortenUrlByGoogl(url)
-{
+function shortenUrlByGoogl(url) {
 	var response;
-	
-	var	xmlhttp = new XMLHttpRequest();
-	xmlhttp.open("POST", "http://goo.gl/api/url?user=toolbar@google.com&url=" + encodeURIComponent(url) + "&auth_token=" + getAuthToken(url), false);
-	xmlhttp.onload = function()
-	{
+
+	var xmlhttp = new XMLHttpRequest();
+	xmlhttp.open("POST", "http://goo.gl/api/url?user=toolbar@google.com&url="
+					+ encodeURIComponent(url) + "&auth_token="
+					+ getAuthToken(url), false);
+	xmlhttp.onload = function() {
 		var object = JSON.parse(xmlhttp.responseText);
-		
-		if(object["short_url"] == undefined)
-			response = {status: "error", message: object["error_message"]};
-		else	
-			response = {status: "success", message: object["short_url"]};
+
+		if (object["short_url"] == undefined)
+			response = {
+				status : "error",
+				message : object["error_message"]
+			};
+		else
+			response = {
+				status : "success",
+				message : object["short_url"]
+			};
 	};
 	xmlhttp.send(null);
- 
+
 	return response;
 }
 
-function shortenUrlByIsgd(url)
-{
+function shortenUrlByIsgd(url) {
 	var response;
-	var	xmlhttp = new XMLHttpRequest();
-	xmlhttp.open("GET", "http://is.gd/api.php?longurl=" + encodeURIComponent(url), false);
-	xmlhttp.onload = function()
-	{
-		if(200 == xmlhttp.status)	
-			response = {status: "success", message: xmlhttp.responseText};
-		else	
-			response = {status: "error", message: "Internal server error!"};
+	var xmlhttp = new XMLHttpRequest();
+	xmlhttp.open("GET", "http://is.gd/api.php?longurl="
+					+ encodeURIComponent(url), false);
+	xmlhttp.onload = function() {
+		if (200 == xmlhttp.status)
+			response = {
+				status : "success",
+				message : xmlhttp.responseText
+			};
+		else
+			response = {
+				status : "error",
+				message : "Internal server error!"
+			};
 	};
 	xmlhttp.send(null);
- 
-	return response;	
+
+	return response;
 }
 
-function shortenUrlByAacx(url)
-{
+function shortenUrlByAacx(url) {
 	var response;
-	var	xmlhttp = new XMLHttpRequest();
-	xmlhttp.open("GET", "http://aa.cx/api.php?url=" + encodeURIComponent(url), false);
-	xmlhttp.onload = function()
-	{
-		if(200 == xmlhttp.status)	
-			response = {status: "success", message: xmlhttp.responseText};
-		else	
-			response = {status: "error", message: "Internal server error!"};
+	var xmlhttp = new XMLHttpRequest();
+	xmlhttp.open("GET", "http://aa.cx/api.php?url=" + encodeURIComponent(url),
+			false);
+	xmlhttp.onload = function() {
+		if (200 == xmlhttp.status)
+			response = {
+				status : "success",
+				message : xmlhttp.responseText
+			};
+		else
+			response = {
+				status : "error",
+				message : "Internal server error!"
+			};
 	};
 	xmlhttp.send(null);
- 
-	return response;	
+
+	return response;
 }
 
-function log(o){
+function log(o) {
 	console.log(o);
 }

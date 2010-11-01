@@ -17,7 +17,7 @@
 			$.ajax({
 						url : sinaURL.update,
 						cache : false,
-						timeout : 20 * 1000,
+						timeout : 30 * 1000,
 						type : "post",
 						data : _data,
 						async : true,
@@ -36,10 +36,6 @@
 						},
 						error : function(xhr, textStatus, errorThrown) {
 							result.ok = false;
-							console.log("--------sina--------");
-							console.log(xhr);
-							console.log(textStatus);
-							console.log(errorThrown);
 							try {
 								result.responseText = textStatus;
 								if(xhr.responseText){
@@ -57,8 +53,7 @@
 	
 	var app_source = "1223946471";
 	var domain_sina = 'http://t.sina.com.cn';
-	//var api_domain_sina = 'http://api.t.sina.com.cn';
-	var api_domain_sina = 'http://www.twitter.com';
+	var api_domain_sina = 'http://api.t.sina.com.cn';
 	
 	var sinaURL = {    
         public_timeline:        api_domain_sina + '/statuses/public_timeline.json',
