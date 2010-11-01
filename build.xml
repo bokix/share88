@@ -15,6 +15,7 @@
 			<fileset dir="${src}" casesensitive="yes">
 				<exclude name="CVS/**/*.*"/>
 				<exclude name="scripts/*.js"/>
+				<exclude name="stylesheets/*.css"/>
 			</fileset>
 		</copy>
 	</target>
@@ -30,9 +31,9 @@
 			<targetfile />
 		</apply>
 	</target>
-	<target name="compress-css">
-		<apply executable="java" parallel="false" failonerror="true" dest="${src}/dest" append="false" force="true">
-			<fileset dir="${src}" includes="css/**.css" />
+	<target name="compress-css" depends="compress-js">
+		<apply executable="java" parallel="false" failonerror="true" dest="${deploy}/stylesheets" append="false" force="true">
+			<fileset dir="${src}/stylesheets/" includes="**.css" />
 			<arg line="-jar" />
 			<arg path="yuicompressor-2.4.2.jar" />
 			<arg line="--charset utf-8" />
@@ -42,7 +43,7 @@
 			<targetfile />
 		</apply>
 	</target>
-	<target name="zip" depends="compress-js">
+	<target name="zip" depends="compress-css">
 		<zip destfile="${dist}/share8.zip"
 		       basedir="${deploy}"
 		  />
