@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="MyTask" basedir="." default="zip">
+	<property name="src" value="./trunk" />
+	<property name="deploy" value="./deploy" />
+	<property name="dist" value="./dist" />
+
+	<target name="init">
+		<delete dir="${deploy}" failonerror="off" />
+		<delete dir="${dist}" failonerror="off" />
+		<mkdir dir="${deploy}" />
+		<mkdir dir="${dist}" />
+	</target>
+	<target name="copy" depends="init">
+		<copy todir="${deploy}" overwrite="true">
+			<fileset dir="${src}" casesensitive="yes">
+				<exclude name="CVS/**/*.*"/>
+				<exclude name="scripts/*.js"/>
+			</fileset>
+		</copy>
+	</target>
+	<target name="compress-js" depends="copy">
+		<apply executable="java" parallel="false" failonerror="true" dest="${deploy}/scripts" append="false" force="true">
+			<fileset dir="${src}/scripts/" includes="**.js" />
+			<arg line="-jar" />
+			<arg path="yuicompressor-2.4.2.jar" />
+			<arg line="--charset utf-8" />
+			<srcfile />
+			<arg line="-o" />
+			<mapper type="glob" from="*.js" to="*.js" />
+			<targetfile />
+		</apply>
+	</target>
+	<target name="compress-css">
+		<apply executable="java" parallel="false" failonerror="true" dest="${src}/dest" append="false" force="true">
+			<fileset dir="${src}" includes="css/**.css" />
+			<arg line="-jar" />
+			<arg path="yuicompressor-2.4.2.jar" />
+			<arg line="--charset utf-8" />
+			<srcfile />
+			<arg line="-o" />
+			<mapper type="glob" from="*.css" to="*.css" />
+			<targetfile />
+		</apply>
+	</target>
+	<target name="zip" depends="compress-js">
+		<zip destfile="${dist}/share8.zip"
+		       basedir="${deploy}"
+		  />
+	</target>
+</project>
