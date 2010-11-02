@@ -12,7 +12,10 @@
 	window.close();
 	var content = $('#txtContent').val();
 	content = content.replace("http://", "").replace("https://","");
-	chrome.extension.getBackgroundPage().sendMsg(content);
+	var msgObj = new MsgObj();
+	msgObj.mediaType = "text";
+	msgObj.msg = text;
+	chrome.extension.getBackgroundPage().sendMsg(msgObj);
 
 	//return;
 }
