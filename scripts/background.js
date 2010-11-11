@@ -65,7 +65,7 @@ function mediaClick(info, tab) {
 	var msgObj = new MsgObj();
 	msgObj.mediaType = "img";
 	msgObj.msg = text;
-	msgObj.srcurl = shortenedUrl;
+	msgObj.srcurl = srcurl;
 
 	sendMsg(msgObj);
 
@@ -184,7 +184,11 @@ function sendMsg(/* MsgObj */content) {
 					Follow5Api.update(content.msg, sendCallback);
 					break;
 				case "sohu" :
-					SohuApi.update(content.msg, sendCallback);
+					var s2 = encodeURIComponent(content.msg);
+					SohuApi.update(s2, sendCallback);
+					break;
+				case "net163" :
+					Net163Api.update(content.msg, sendCallback);
 					break;
 			}
 		}
