@@ -14,7 +14,7 @@
 	content = content.replace("http://", "").replace("https://","");
 	var msgObj = new MsgObj();
 	msgObj.mediaType = "text";
-	msgObj.msg = text;
+	msgObj.msg = content;
 	chrome.extension.getBackgroundPage().sendMsg(msgObj);
 
 	//return;

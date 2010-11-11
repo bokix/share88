@@ -9,11 +9,6 @@ var currentTabId = -999;
 function getDoneServices() {
 	return doneServices;
 }
-function MsgObj() {
-	this.mediaType = "";// text,img,link
-	this.srcurl = "";
-	this.msg = "";
-}
 function background() {
 	var title = chrome.i18n.getMessage("extName");
 	chrome.contextMenus.create({
