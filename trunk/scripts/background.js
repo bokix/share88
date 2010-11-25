@@ -1,5 +1,6 @@
 ﻿/**
  * @include "Result.js"
+ * @include "MsgObj.js"
  */
 
 var doneServices = [];
@@ -48,19 +49,15 @@ function contextMenuClick(info, tab) {
 function mediaClick(info, tab) {
 	log("media click.");
 
-	var srcurl = info.srcUrl;
-	var shortenedUrl = rPro(srcurl);
-	var response = shortenUrl(srcurl);
-	if (response.status == "success") {
-		shortenedUrl = rPro(response.message);
-	}
-
-	var text = chrome.i18n.getMessage("share") + ":" + shortenedUrl;
-
 	var msgObj = new MsgObj();
+
 	msgObj.mediaType = "img";
-	msgObj.msg = text;
-	msgObj.srcurl = srcurl;
+	msgObj.sourceUrl = info.srcUrl;
+
+	var response = shortenUrl(info.srcUrl);
+	if (response.status == "success") {
+		msgObj.shortUrl = response.message;
+	}
 
 	sendMsg(msgObj);
 
@@ -68,32 +65,31 @@ function mediaClick(info, tab) {
 }
 function linkClick(info, tab) {
 	log("link click.");
-	var linkurl = info.linkUrl;
-	var shortenedUrl = rPro(linkurl);
-	var response = shortenUrl(linkurl);
-	if (response.status == "success") {
-		shortenedUrl = rPro(response.message);
-	}
-
-	var text = chrome.i18n.getMessage("share") + ":" + shortenedUrl;
 
 	var msgObj = new MsgObj();
+	
 	msgObj.mediaType = "link";
-	msgObj.msg = text;
-	msgObj.srcurl = shortenedUrl;
+	msgObj.sourceUrl = info.linkUrl;
+	
+	var response = shortenUrl(info.linkUrl);
+	if (response.status == "success") {
+		msgObj.shortUrl = response.message;
+	}
 
 	sendMsg(msgObj);
 }
 function selectionClick(info, tab) {
 	log("selection click.");
+
+	var msgObj = new MsgObj();
+	
+	msgObj.mediaType = "text";
+	
 	var text = info.selectionText;
-	text = rPro(text);
 	if (text.length > 140) {
 		text = text.substr(0, 130) + ".....";
 	}
 
-	var msgObj = new MsgObj();
-	msgObj.mediaType = "text";
 	msgObj.msg = text;
 
 	sendMsg(msgObj);
@@ -101,33 +97,39 @@ function selectionClick(info, tab) {
 function pageClick(info, tab) {
 	log("page click.");
 
-	var title = tab.title || "";
-	var purl = tab.url || "";
-	var shortenedUrl = rPro(purl);
-	var response = shortenUrl(purl);
-	if (response.status == "success") {
-		shortenedUrl = rPro(response.message);
-	}
-
-	var text = chrome.i18n.getMessage("share") + ":" + title + ":"
-			+ shortenedUrl;
-
 	var msgObj = new MsgObj();
 	msgObj.mediaType = "page";
-	msgObj.msg = text;
-	msgObj.srcurl = shortenedUrl;
+
+	var title = tab.title || "";
+	var purl = tab.url || "";
+	
+	msgObj.msg = title;
+	msgObj.sourceUrl = purl;
+	
+	var response = shortenUrl(purl);
+	if (response.status == "success") {
+		msgObj.shortUrl = response.message;
+	}
 
 	sendMsg(msgObj);
 }
+
+/**
+ * twitter需要把消息中的http去掉。
+ * 
+ * @param {} url
+ * @return {String}
+ */
 function rPro(url) {
 	if (url == null || url == "") {
 		return "";
 	}
 	return url.replace("http://", "").replace("https://", "");
 }
-function sendMsg(/* MsgObj */content) {
 
-	log(content);
+function sendMsg(/* MsgObj */msgObj) {
+
+	log(msgObj);
 	
 	chrome.tabs.getSelected(null, function(tab) {
 				currentTabId = tab.id;
@@ -164,26 +166,19 @@ function sendMsg(/* MsgObj */content) {
 		if (allServices[service]) {
 			switch (service) {
 				case "sina" :
-					if (content.mediaType == "img") {
-						SinaApi.upload(content.msg, content.srcurl,
-								sendCallback);
-					} else {
-						SinaApi.update(content.msg, sendCallback);
-					}
+					SinaApi.update(getMeg4send(msgObj,"sina"), sendCallback);
 					break;
 				case "twitter" :
-					var s = encodeURIComponent(content.msg);
-					TwitterApi.update(s, sendCallback);
+					TwitterApi.update(getMeg4send(msgObj,"twitter"), sendCallback);
 					break;
 				case "follow5" :
-					Follow5Api.update(content.msg, sendCallback);
+					Follow5Api.update(getMeg4send(msgObj,"follow5"), sendCallback);
 					break;
 				case "sohu" :
-					var s2 = encodeURIComponent(content.msg);
-					SohuApi.update(s2, sendCallback);
+					SohuApi.update(getMeg4send(msgObj,"sohu"), sendCallback);
 					break;
 				case "net163" :
-					Net163Api.update(content.msg, sendCallback);
+					Net163Api.update(getMeg4send(msgObj,"net163"), sendCallback);
 					break;
 			}
 		}
@@ -191,6 +186,47 @@ function sendMsg(/* MsgObj */content) {
 
 	return;
 }
+
+/**
+ * 不同服务器对于发送的消息要求不同，如：新浪对于发送的内容不允许有除新浪自己以外的短网址！！
+ * 
+ * @param {}
+ *            msgObj
+ * @param {}
+ *            serverType
+ */
+function getMeg4send(/* MsgObj */ msgObj, /* String */ serverType){
+	var msg = "";
+	switch(msgObj.mediaType){
+		case "text":
+			msg = msgObj.msg;
+			break;
+		case "link":
+		case "img":
+		case "page":
+			msg = chrome.i18n.getMessage("share") + ":" + msgObj.msg + " ";
+			if(serverType=="sina"){
+				msg += msgObj.sourceUrl;
+			}else{
+				msg += msgObj.shortUrl;
+			}
+			break;
+		
+		default:
+			msg += msgObj.msg;
+			break;
+	}
+	
+	if(serverType=="twitter" || serverType == "sohu"){
+		msg = encodeURIComponent(rPro(msg));
+	}
+	
+	log("get msg of "+serverType + " with mediaType[" + msgObj.mediaType + "].");
+	log("result msg:" + msg);
+	
+	return msg;
+}
+
 
 function sendCallback(/* Result */result) {
 
