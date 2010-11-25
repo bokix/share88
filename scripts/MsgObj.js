@@ -1,6 +1,7 @@
 ﻿
 function MsgObj() {
 	this.mediaType = "";// text,img,link
-	this.srcurl = "";
+	this.shortUrl = "";//shorten url.
 	this.msg = "";
+	this.sourceUrl = "";// long url.
 }

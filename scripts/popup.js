@@ -11,7 +11,6 @@
 	
 	window.close();
 	var content = $('#txtContent').val();
-	content = content.replace("http://", "").replace("https://","");
 	var msgObj = new MsgObj();
 	msgObj.mediaType = "text";
 	msgObj.msg = content;
