@@ -5,6 +5,12 @@
    "extName": {
       "message": "share now!"
    },
+   "subTitleEdit": {
+      "message": "edit & send"
+   },
+   "subTitleSend": {
+      "message": "send"
+   },
    "share" : {
 		"message" : "share"
 	},
