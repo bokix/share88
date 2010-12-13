@@ -1,54 +1,78 @@
 ﻿function pushAll() {
 	/**
-	chrome.tabs.getSelected(null, function (tab){
-		console.log("tab id:::::::::::::" + JSON.stringify(tab));
-		chrome.browserAction.setBadgeText({text:"2/5",tabId:tab.id});
-	
-	});
-	chrome.browserAction.setTitle({title:"<b>dkdkdkd</b>kdkf\nkk<ul><li>1</li><li>2</li></ul>"});
-	return;
-	*/
-	
+	 * chrome.tabs.getSelected(null, function (tab){ console.log("tab
+	 * id:::::::::::::" + JSON.stringify(tab));
+	 * chrome.browserAction.setBadgeText({text:"2/5",tabId:tab.id});
+	 * 
+	 * }); chrome.browserAction.setTitle({title:"<b>dkdkdkd</b>kdkf\nkk
+	 * <ul>
+	 * <li>1</li>
+	 * <li>2</li>
+	 * </ul>
+	 * "}); return;
+	 */
+
 	window.close();
 	var content = $('#txtContent').val();
-	var msgObj = new MsgObj();
-	msgObj.mediaType = "text";
-	msgObj.msg = content;
-	chrome.extension.getBackgroundPage().sendMsg(msgObj);
-
-	//return;
+	chrome.extension.getBackgroundPage().sendMsg(content);
+	// return;
 }
 
 /**
-function createServiceIcon(service) {
-	var iconHtml = "";
+ * shorten url.
+ */
+function shortenURL() {
+	clearMsg();
+	var /*string*/content = $('#txtContent').val();
+	if (content == "") {
+		return;
+	}
+	var txtObj = document.getElementById("txtContent");
+	var urlReg = /[hH][tT][tT][pP][sS]?:\/\/[^\s]*/g;
+	var tmp = content;
+	var urlArr = content.match(urlReg);
+	if (urlArr && urlArr.length > 0) {
 
-	iconHtml += '<a class="ui-button button-share button-share-plain"';
-	iconHtml += ' href="javascript:openShareWindow(' + "'" + service + "'"
-			+ ');"';
+		for (var i = 0; i < urlArr.length; i++) {
+			var source = urlArr[i];
+			var startIndex = content.indexOf(source);
+			var endIndex = startIndex + source.length;
+			txtObj.setSelectionRange(startIndex,endIndex);
+			var response = chrome.extension.getBackgroundPage()
+					.shortenUrl(source);
+			if (response.status == "success") {
+				tmp = tmp.replace(source,response.message);
+			} else {
+				clearMsg();
+				setMsg("short url error.");
+			}
+		}
+		$('#txtContent').val(tmp);
+		onTextChange();
+	} else {
+	}
 
-	if (g_preferences.parameters.show_icon)
-		iconHtml += ' title="' + g_preferences.serviceNames[service]
-				+ '"><img class="icon-share" src="icons/' + service + '.png">';
-	else
-		iconHtml += ">" + g_preferences.serviceNames[service];
-
-	iconHtml += '</a>';
-
-	return iconHtml;
 }
-*/
-function initData(tab) {
-	g_data = {
-		id : tab.id,
-		url : tab.url,
-		title : tab.title,
-		shortenedUrl : "",
-		txtContent : ""
-	};
+
+function changeSimpleChar(){
+	clearMsg();
+	var /*string*/content = $('#txtContent').val();
+	if (content == "") {
+		return;
+	}
+	
+	chrome.extension.getBackgroundPage().log("msg:" + content);
+	
+	$("a").toggle(function(){
+		chrome.extension.getBackgroundPage().log("Traditionalized:" + content.Traditionalized());
+		$('#txtContent').val(content.Traditionalized());
+	},function(){
+		chrome.extension.getBackgroundPage().log("Simplized:" + content.Simplized());
+		$('#txtContent').val(content.Simplized());
+	});
 }
 function init() {
-
+	
 	if (!Util.getObjData("alreadyServices")) {
 		window.close();
 		chrome.tabs.create({
@@ -57,43 +81,51 @@ function init() {
 		return false;
 	}
 
-	chrome.tabs.getSelected(null, function(tab) {
-				initData(tab);
+	var msg = chrome.extension.getBackgroundPage().initPopupMsg();
 
-				/**
-				if (tab.url.indexOf("http") == 0) {
-					var response = chrome.extension.getBackgroundPage()
-							.shortenUrl(g_data.url);
-					if (response.status == "success") {
-						g_data.shortenedUrl = response.message;
-					}
-				}
-				*/
-				g_data.txtContent = g_data.title + ": " + g_data.shortenedUrl;
+	if (msg == "") {
+		chrome.tabs.getSelected(null, function(tab) {
+					msg = tab.title + " - " + tab.url;
+					$('#txtContent').html(msg);
+					onTextChange();
+				});
+	} else {
+		$('#txtContent').html(msg);
+		onTextChange();
+	}
 
-				$('#txtContent').append(g_data.txtContent);
-				onTextChange();
 
-				$('#divResponse').show();
-				$('#divLoading').remove();
-			});
+	$('#divResponse').show();
+	$('#divLoading').remove();
+
 	initLog();
+	
+	$(".simpleChar").toggle(function(){
+		var content = $('#txtContent').val();
+		chrome.extension.getBackgroundPage().log("Traditionalized:" + content.Traditionalized());
+		$('#txtContent').val(content.Traditionalized());
+	},function(){
+		var content = $('#txtContent').val();
+		chrome.extension.getBackgroundPage().log("Simplized:" + content.Simplized());
+		$('#txtContent').val(content.Simplized());
+	});
 }
-function initLog(){
+function initLog() {
 	clearMsg();
 	var doneServices = chrome.extension.getBackgroundPage().getDoneServices();
-	if(!doneServices || doneServices.length==0){
+	if (!doneServices || doneServices.length == 0) {
 		return;
 	}
 	var msg = "";
-	for(var i = 0;i<doneServices.length;i++){
-		if(!doneServices[i].ok){
-			msg+=doneServices[i].srvName+":"+doneServices[i].responseText;
+	for (var i = 0; i < doneServices.length; i++) {
+		if (!doneServices[i].ok) {
+			msg += "<br/>" + doneServices[i].srvName + ":" + doneServices[i].responseText;
 		}
 	}
-	if(msg==""){
-		return ;
+	if (msg == "") {
+		return;
 	}
+	msg = msg.substring(5,msg.length);
 	msg = "发送错误：" + msg;
 	console.log("error msg:" + msg);
 	setMsg(msg);

@@ -3,121 +3,152 @@
  * @include "MsgObj.js"
  */
 
+
 var doneServices = [];
 var allServicesLength = 0;
 var currentTabId = -999;
+var g_msg = "";
 
 function getDoneServices() {
 	return doneServices;
 }
 function background() {
 	var title = chrome.i18n.getMessage("extName");
-	chrome.contextMenus.create({
+	var subTitleEdit = chrome.i18n.getMessage("subTitleEdit");
+	var subTitleSend = chrome.i18n.getMessage("subTitleSend");
+
+	var parentid = chrome.contextMenus.create({
 				"title" : title,
 				"contexts" : ["all"],
-				"onclick" : contextMenuClick
+				"onclick" : subTitleEditClick
 			});
-
+	/**
+	chrome.contextMenus.create({
+				"title" : subTitleEdit,
+				"onclick" : subTitleEditClick,
+				"contexts" : ["all"],
+				"parentId" : parentid
+			});
+	chrome.contextMenus.create({
+				"title" : subTitleSend,
+				"onclick" : subTitleSendClick,
+				"contexts" : ["all"],
+				"parentId" : parentid
+			});
+	*/
 }
-function contextMenuClick(info, tab) {
+
+/**
+ * 先编辑
+ * 
+ * @param {}
+ *            info
+ * @param {}
+ *            tab
+ */
+function subTitleEditClick(info, tab) {
+	log("subTitleEditClick");
+	var msg = getMsg(info, tab);
+	g_msg = msg;
+	var s = screen;
+	var prop = "toolbar=0,status=0,resizable=0,width=240,height=230,left="
+			+ (s.width - 440) / 2 + ",top=" + (s.height - 430) / 2;
+	var top = (s.height - 430) / 2;
+	var left = (s.width - 440) / 2;
+	var width = 300;
+	var height= 250;
+
+	chrome.windows.create({
+				top : top,
+				left : left,
+				width : width,
+				height : height,
+				url : "../popup.html",
+				type : "popup"
+			}, function(window) {
+			});
+}
+function initData(tab) {
+	g_data = {
+		id : tab.id,
+		url : tab.url,
+		title : tab.title,
+		shortenedUrl : "",
+		txtContent : ""
+	};
+	log(g_data);
+}
+
+function initPopupMsg() {
+	return g_msg;
+}
+function subTitleSendClick(info, tab) {
+	log("subTitleSendClick");
+	var msg = getMsg(info, tab);
+	g_msg = msg;
+	
+	sendMsg(msg);
+}
+
+function getMsg(info, tab) {
 	log(JSON.stringify(info));
 	log(JSON.stringify(tab));
 
-	var type = info.mediaType;
-	// var pageurl=info.pageUrl;
-	// var srcurl=info.srcUrl;
-	// var title=tab.title||"";
-	// var purl=tab.url||"";
+	var media = info.mediaType;
 	var text = info.selectionText;
 	var link = info.linkUrl;
 	if (text) {
-		// 优先以选择文本的方式发送
-		selectionClick(info, tab);
-	} else if (type) {
-		// One of 'image', 'video', or 'audio'
-		mediaClick(info, tab);
+		return selectionClick(info, tab);
+	} else if (media) {
+		return mediaClick(info, tab);
 	} else if (link) {
-		linkClick(info, tab);
+		return linkClick(info, tab);
 	} else {
-		pageClick(info, tab);
+		return pageClick(info, tab);
 	}
-
-	// text = encodeURIComponent(text.replace("http://", ""));
-	// sendMsg(text);
-
 }
 function mediaClick(info, tab) {
 	log("media click.");
 
-	var msgObj = new MsgObj();
+	var msg = chrome.i18n.getMessage("share") + ":" + info.srcUrl + " ";
 
-	msgObj.mediaType = "img";
-	msgObj.sourceUrl = info.srcUrl;
-
-	var response = shortenUrl(info.srcUrl);
-	if (response.status == "success") {
-		msgObj.shortUrl = response.message;
-	}
-
-	sendMsg(msgObj);
-
-	return;
+	return msg;
 }
 function linkClick(info, tab) {
 	log("link click.");
 
-	var msgObj = new MsgObj();
-	
-	msgObj.mediaType = "link";
-	msgObj.sourceUrl = info.linkUrl;
-	
-	var response = shortenUrl(info.linkUrl);
-	if (response.status == "success") {
-		msgObj.shortUrl = response.message;
-	}
+	var msg = chrome.i18n.getMessage("share") + ":" + info.linkUrl + " ";
 
-	sendMsg(msgObj);
+	return msg;
 }
+
 function selectionClick(info, tab) {
 	log("selection click.");
 
-	var msgObj = new MsgObj();
-	
-	msgObj.mediaType = "text";
-	
 	var text = info.selectionText;
 	if (text.length > 140) {
 		text = text.substr(0, 130) + ".....";
 	}
 
-	msgObj.msg = text;
-
-	sendMsg(msgObj);
+	return text;
 }
 function pageClick(info, tab) {
 	log("page click.");
 
-	var msgObj = new MsgObj();
-	msgObj.mediaType = "page";
-
 	var title = tab.title || "";
 	var purl = tab.url || "";
-	
-	msgObj.msg = title;
-	msgObj.sourceUrl = purl;
-	
-	var response = shortenUrl(purl);
-	if (response.status == "success") {
-		msgObj.shortUrl = response.message;
-	}
 
-	sendMsg(msgObj);
+	var msg = title + " - " + purl + " ";
+
+	return msg;
+
 }
 
 /**
  * twitter需要把消息中的http去掉。
  * 
- * @param {} url
+ * @param {}
+ *            url
  * @return {String}
  */
 function rPro(url) {
@@ -127,10 +158,10 @@ function rPro(url) {
 	return url.replace("http://", "").replace("https://", "");
 }
 
-function sendMsg(/* MsgObj */msgObj) {
+function sendMsg(msgObj) {
 
 	log(msgObj);
-	
+
 	chrome.tabs.getSelected(null, function(tab) {
 				currentTabId = tab.id;
 				chrome.browserAction.setBadgeText({
@@ -166,23 +197,28 @@ function sendMsg(/* MsgObj */msgObj) {
 		if (allServices[service]) {
 			switch (service) {
 				case "sina" :
-					SinaApi.update(getMeg4send(msgObj,"sina"), sendCallback);
+					SinaApi.update(getMeg4send(msgObj, "sina"), sendCallback);
 					break;
 				case "twitter" :
-					TwitterApi.update(getMeg4send(msgObj,"twitter"), sendCallback);
+					TwitterApi.update(getMeg4send(msgObj, "twitter"),
+							sendCallback);
 					break;
 				case "follow5" :
-					Follow5Api.update(getMeg4send(msgObj,"follow5"), sendCallback);
+					Follow5Api.update(getMeg4send(msgObj, "follow5"),
+							sendCallback);
 					break;
 				case "sohu" :
-					SohuApi.update(getMeg4send(msgObj,"sohu"), sendCallback);
+					SohuApi.update(getMeg4send(msgObj, "sohu"), sendCallback);
 					break;
 				case "net163" :
-					Net163Api.update(getMeg4send(msgObj,"net163"), sendCallback);
+					Net163Api.update(getMeg4send(msgObj, "net163"),
+							sendCallback);
 					break;
 			}
 		}
 	}
+	
+	g_msg = "";
 
 	return;
 }
@@ -195,38 +231,14 @@ function sendMsg(/* MsgObj */msgObj) {
  * @param {}
  *            serverType
  */
-function getMeg4send(/* MsgObj */ msgObj, /* String */ serverType){
-	var msg = "";
-	switch(msgObj.mediaType){
-		case "text":
-			msg = msgObj.msg;
-			break;
-		case "link":
-		case "img":
-		case "page":
-			msg = chrome.i18n.getMessage("share") + ":" + msgObj.msg + " ";
-			if(serverType=="sina"){
-				msg += msgObj.sourceUrl;
-			}else{
-				msg += msgObj.shortUrl;
-			}
-			break;
-		
-		default:
-			msg += msgObj.msg;
-			break;
+function getMeg4send(msgObj, /* String */serverType) {
+	var msg = msgObj;
+	if (serverType == "twitter" || serverType == "sohu") {
+		msg = encodeURIComponent(rPro(msgObj));
 	}
-	
-	if(serverType=="twitter" || serverType == "sohu"){
-		msg = encodeURIComponent(rPro(msg));
-	}
-	
-	log("get msg of "+serverType + " with mediaType[" + msgObj.mediaType + "].");
-	log("result msg:" + msg);
-	
+
 	return msg;
 }
-
 
 function sendCallback(/* Result */result) {
 
@@ -279,8 +291,10 @@ function shortenUrl(url) {
 			return shortenUrlByAacx(url);
 			break;
 		case "goo.gl" :
-		default :
 			return shortenUrlByGoogl(url);
+			break;
+		default :
+			return shortenUrlByIsgd(url);
 			break;
 	}
 }

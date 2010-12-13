@@ -1,4 +1,26 @@
-﻿function save(type) {
+﻿var oauth=ChromeExOAuth.initBackgroundPage({
+	'request_url': "http://api.t.163.com/oauth/request_token",
+	'authorize_url': "http://api.t.163.com/oauth/authenticate",
+	'access_url': "http://api.t.163.com/oauth/access_token",
+	'consumer_key':"nvEarTz6ESkybgKq",
+	'consumer_secret': "LKDLe4P6G6GulqNOHwwvRdz3LopqG3Vj",
+	'scope':'',
+	'app_name': "分享吧"
+});
+function getOauth(servType){
+	if (!oauth.hasToken()) {
+		oauth.authorize(function() {
+					alert('oauth 163 ok.');
+				});
+	} else {
+		alert('already oauth.' + oauth.getToken());
+	}
+	
+	
+}
+
+
+function save(type) {
 	var inputClsKey = "." + type + " input"; // like: ".sina input"
 	var allUserData = Util.getObjData("allUserData") || {};
 	allUserData[type] = {};
