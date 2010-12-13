@@ -8,7 +8,7 @@
 		<script type="text/javascript" src="jquery/js/jquery-1.4.2.min.js"></script>
 		<script type="text/javascript" src="jquery/js/jquery-ui-1.8.custom.min.js"></script>
 		
-		<script type="text/javascript" src="scripts/MsgObj.js"></script> 
+		<script type="text/javascript" src="scripts/chinese-char-convert.js"></script> 
 		<script type="text/javascript" src="scripts/lib/base64.js"></script> 
 		<script type="text/javascript" src="scripts/util.js"></script> 
 		<script type="text/javascript" src="scripts/SinaApi.js"></script> 
@@ -22,7 +22,7 @@
 			<div id="divText" class="div-text">
 				<textarea id="txtContent" rows="3" class="txtContent" onkeyup="onTextChange();"></textarea>
 			</div>
-			<div id="divShare" class="div-share">中:<span class="msgCountZh msgCount">0/140</span>英:<span class="msgCountEn msgCount">0/140</span><a href="#" onclick="pushAll()">send</a></div>
+			<div id="divShare" class="div-share"><span class="shortenUrlSpan" title="缩短文本区中的URL" onclick="shortenURL()"></span><span class="simpleChar" title="简体-繁体"></span>中:<span class="msgCountZh msgCount">0/140</span>英:<span class="msgCountEn msgCount">0/140</span><a href="#" onclick="pushAll()">send</a></div>
 			<div id="divStatus" class="div-status"></div>
 		</div>
 	</body> 
