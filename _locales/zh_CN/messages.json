@@ -5,6 +5,12 @@
 	"extName" : {
 		"message" : "分享吧！"
 	},
+	"subTitleEdit" : {
+		"message" : "先编辑再分享"
+	},
+	"subTitleSend" : {
+		"message" : "直接分享"
+	},
 	"share" : {
 		"message" : "分享"
 	},
