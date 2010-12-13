@@ -1,85 +1,95 @@
-body, textarea 
-{
+body,textarea {
 	margin: 3px;
 	padding: 0;
 	font-family: Cambria, Microsoft YaHei, Î¢ÈíÑÅºÚ;
-	font-size: 14px; 
+	font-size: 14px;
 	color: #777777;
 }
 
-.txtContent
-{
-	resize:none;
-	overflow-y:visible;	
+.txtContent {
+	resize: none;
+	overflow-y: visible;
 	padding: 1px 3px;
 	width: 100%;
 	margin: 0px;
 	height: 160px;
 }
 
-.div-loading
-{
+.div-loading {
 	width: 160px;
 	margin-left: auto;
-    margin-right: auto;
+	margin-right: auto;
 }
 
-.div-response
-{
+.div-response {
 	width: 260px;
 	margin-left: auto;
-    margin-right: auto;
+	margin-right: auto;
 }
 
-.div-text
-{
+.div-text {
 	width: 260px;
 	margin-left: auto;
-    margin-right: auto;
+	margin-right: auto;
 }
 
-.div-share
-{
+.div-share {
 	margin: 2px 0px 2px 0px;
 	vertical-align: middle;
 }
-.div-share a
-{
-	padding-left: 100px;
+
+.shortenUrlSpan {
+	background-image: url(../icons/link.png);
+	background-position-y: 2px;
+	background-repeat: no-repeat;
+	width: 16px;
+	height: 16px;
+	padding: 0 20px 0 1px;
+	cursor: pointer;
 }
 
-.div-status
-{
+.simpleChar {
+	background-image: url(../icons/s-char3.png);
+	background-repeat: no-repeat;
+	width: 16px;
+	height: 16px;
+	padding: 0 20px 0 0;
+	cursor: pointer;
+}
+
+.div-share a {
+	padding-left: 70px;
+}
+
+.div-status {
 	pading: 5px, 3px;
 	margin-left: auto;
-    margin-right: auto;
-    background-color: yellow;
+	margin-right: auto;
+	background-color: yellow;
 }
 
-.button-share
-{
+.button-share {
 	font-size: 16px;
 	padding: 2px;
 	margin: 0px;
 }
 
-.button-share-plain
-{
+.button-share-plain {
 	border: 1px solid transparent;
 }
 
-.button-share-advance
-{
+.button-share-advance {
 	font-size: 14px;
 	padding: 1px 4px 1px 4px;
 	margin: 0px;
 }
-.msgCount{
-	font-style:italic;
-	color: blue;	
+
+.msgCount {
+	font-style: italic;
+	color: blue;
 }
-.icon-share
-{
+
+.icon-share {
 	width: 16px;
 	height: 16px;
 }
