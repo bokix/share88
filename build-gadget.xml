@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="GadgetTask" basedir="." default="zip">
+	<property name="src" value="./gadget" />
+	<property name="deploy" value="./deploy" />
+	<property name="dist" value="./dist" />
+
+	<target name="init">
+		<delete dir="${deploy}" failonerror="off" />
+		<delete dir="${dist}" failonerror="off" />
+		<mkdir dir="${deploy}" />
+		<mkdir dir="${dist}" />
+	</target>
+	<target name="copy" depends="init">
+		<copy todir="${deploy}" overwrite="true">
+			<fileset dir="${src}" casesensitive="yes">
+				<exclude name="CVS/**/*.*"/>
+				<exclude name="zh-CN/scripts/*.js"/>
+				<exclude name="zh-CN/stylesheets/*.css"/>
+			</fileset>
+		</copy>
+	</target>
+	<target name="compress-js" depends="copy">
+		<apply executable="java" parallel="false" failonerror="true" dest="${deploy}/zh-CN/scripts" append="false" force="true">
+			<fileset dir="${src}/zh-CN/scripts/" includes="**.js" />
+			<arg line="-jar" />
+			<arg path="yuicompressor-2.4.2.jar" />
+			<arg line="--charset utf-8" />
+			<srcfile />
+			<arg line="-o" />
+			<mapper type="glob" from="*.js" to="*.js" />
+			<targetfile />
+		</apply>
+	</target>
+	<target name="compress-css" depends="compress-js">
+		<apply executable="java" parallel="false" failonerror="true" dest="${deploy}/zh-CN/stylesheets" append="false" force="true">
+			<fileset dir="${src}/zh-CN/stylesheets/" includes="**.css" />
+			<arg line="-jar" />
+			<arg path="yuicompressor-2.4.2.jar" />
+			<arg line="--charset utf-8" />
+			<srcfile />
+			<arg line="-o" />
+			<mapper type="glob" from="*.css" to="*.css" />
+			<targetfile />
+		</apply>
+	</target>
+	<target name="zip" depends="compress-css">
+		<zip destfile="${dist}/share8.zip"
+		       basedir="${deploy}"
+		  />
+	</target>
+</project>
