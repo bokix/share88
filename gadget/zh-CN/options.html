@@ -1,0 +1,136 @@
+﻿<!doctype html>
+<html>
+	<head> 
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /> 
+		<link rel="Stylesheet" type="text/css" href="jquery/css/gray/jquery-ui-1.8.custom.css">	
+		<link rel="stylesheet" type="text/css" href="stylesheets/options.css">
+		<script type="text/javascript" src="jquery/js/jquery-1.4.2.min.js"></script>
+		<script type="text/javascript" src="jquery/js/jquery-ui-1.8.custom.min.js"></script>
+		
+		<script type="text/javascript" src="scripts/lib/base64.js"></script>
+		<script type="text/javascript" src="scripts/lib/json2.js"></script>
+		<script type="text/javascript" src="scripts/getOauth.js"></script>
+		<script type="text/javascript" src="scripts/util.js"></script>
+		<script type="text/javascript" src="scripts/options.js"></script>
+		<script>
+		
+		
+		</script>
+	</head> 
+
+	<body onload="onLoadOptionPage()"> 
+		<div class="bindRow bind-twitter-row" title="twitter">
+			<img src="icons/twitter24.gif" class="bind-img" title="twitter"></img>
+			<div class="bind-user-name"></div>
+			<div class="bind-action" onclick="showInputDiv('twitter')">绑定</div>
+			<div class="bind-remove" onclick="remove('twitter')">remove</div>
+		</div>
+		<div class="bindRow bind-follow5-row" title="follow5">
+			<img src="icons/follow5.png" class="bind-img" title="follow5"></img>
+			<div class="bind-user-name"></div>
+			<div class="bind-action" onclick="showInputDiv('follow5')">绑定</div>
+			<div class="bind-remove" onclick="remove('follow5')">remove</div>
+		</div>
+		<div class="bindRow bind-sina-row"  title="新浪微博">
+			<img src="icons/sina24.png" class="bind-img" title="新浪微博"></img>
+			<div class="bind-user-name"></div>
+			<div class="bind-action" onclick="showInputDiv('sina')">绑定</div>
+			<div class="bind-remove" onclick="remove('sina')">remove</div>
+		</div>
+		<div class="bindRow bind-sohu-row" title="搜狐微博">
+			<img src="icons/sohu24.png" class="bind-img" title="搜狐微博"></img>
+			<div class="bind-user-name"></div>
+			<div class="bind-action" onclick="showInputDiv('sohu')">绑定</div>
+			<div class="bind-remove" onclick="remove('sohu')">remove</div>
+		</div>
+		<div class="bindRow bind-net163-row" title="网易微博">
+			<img src="icons/163-32.png" class="bind-img" title="网易微博"></img>
+			<div class="bind-user-name"></div>
+			<div class="bind-action" onclick="showInputDiv('net163')">绑定</div>
+			<div class="bind-remove" onclick="remove('net163')">remove</div>
+		</div>
+		<div class="inputdiv sinaDiv">
+			<table>
+				<tr>
+					<td align="left" colspan="2" class="serv-name">新浪微博</td>
+				</tr>
+				<tr>
+					<td align="right">name:</td><td><input type="text" class="sinaInput" name="loginName"></td>
+				</tr>
+				<tr>
+					<td align="right">password:</td><td><input type="password"" class="sinaInput" name="passWord"></td>
+				</tr>
+				<tr>
+					<td colspan="2" align="center"><span class="closeSpan" onclick="$('.inputdiv').hide()">close</span>&nbsp;<button onclick="save('sina')">save</button></td>
+				</tr>
+			</table>
+		</div>
+		<div class="inputdiv twitterDiv">
+			<table>
+				<tr>
+					<td align="left" colspan="2" class="serv-name">twitter</td>
+				</tr>
+				<tr>
+					<td align="right">name:</td><td><input type="text" class="twitterInput" name="loginName"></td>
+				</tr>
+				<tr>
+					<td align="right">password:</td><td><input type="password" class="twitterInput" name="passWord"></td>
+				</tr>
+				<tr>
+					<td align="right">API:</td><td><input type="text" class="twitterInput" name="proxy"></td>
+				</tr>
+				<tr>
+					<td colspan="2" align="center"><span class="closeSpan" onclick="$('.inputdiv').hide()">close</span>&nbsp;<button onclick="save('twitter')">save</button></td>
+				</tr>
+			</table>
+		</div>
+		<div class="inputdiv sohuDiv">
+			<table>
+				<tr>
+					<td align="left" colspan="2" class="serv-name">搜狐微博</td>
+				</tr>
+				<tr>
+					<td align="right">name:</td><td><input type="text" class="sohuInput" name="loginName"></td>
+				</tr>
+				<tr>
+					<td align="right">password:</td><td><input type="password" class="sohuInput" name="passWord"></td>
+				</tr>
+				<tr>
+					<td colspan="2" align="center"><span class="closeSpan" onclick="$('.inputdiv').hide()">close</span>&nbsp;<button onclick="save('sohu')">save</button></td>
+				</tr>
+			</table>
+		</div>
+		<div class="inputdiv follow5Div">
+			<table>
+				<tr>
+					<td align="left" colspan="2" class="serv-name">follow5</td>
+				</tr>
+				<tr>
+					<td align="right">name:</td><td><input type="text" class="follow5Input" name="loginName"></td>
+				</tr>
+				<tr>
+					<td align="right">password:</td><td><input type="password" class="follow5Input" name="passWord"></td>
+				</tr>
+				<tr>
+					<td colspan="2" align="center"><span class="closeSpan" onclick="$('.inputdiv').hide()">close</span>&nbsp;<button onclick="save('follow5')">save</button></td>
+				</tr>
+			</table>
+		</div>
+		<div class="inputdiv net163Div">
+			<table>
+				<tr>
+					<td align="left" colspan="2" class="serv-name">网易微博</td>
+				</tr>
+				<tr>
+					<td align="right">name:</td><td><input type="text" class="net163Input" name="loginName"></td>
+				</tr>
+				<tr>
+					<td align="right">password:</td><td><input type="password" class="net163Input" name="passWord"></td>
+				</tr>
+				<tr>
+					<td colspan="2" align="center"><span class="closeSpan" onclick="$('.inputdiv').hide()">close</span>&nbsp;<button onclick="save('net163')">save</button></td>
+				</tr>
+			</table>
+		</div>
+	</body> 
+</html>

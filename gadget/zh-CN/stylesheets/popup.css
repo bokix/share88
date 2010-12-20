@@ -1,0 +1,116 @@
+body {
+	width: 230px;
+	height: 200px;
+	margin: 0px;
+}
+
+/** 主div，包含输入框 */
+.maindiv {
+	position: absolute;
+	top: 17px;
+	left: 9px;
+}
+/** 功能按钮区div */
+.actiondiv{
+	position:absolute;
+	top:167px;
+	left: 9px;
+	margin-top:2px;
+	/**
+	background-color: blue;
+	border-top-width:1px;
+	border-top-style:solid;
+	*/
+	height: 15px;
+	width: 212px;
+	font-family: Cambria, Microsoft YaHei, 微软雅黑;
+	font-size: 12px;
+}
+
+/** 日志显示区div */
+.logdiv{
+	position:absolute;
+	top:155px;
+	left:9px;
+	background-color: yellow;
+	height: 15px;
+	width: 212px;
+	font-family: Cambria, Microsoft YaHei, 微软雅黑;
+	font-size: 12px;
+	padding-left: 5px;
+	overflow: hidden;
+	display: none;
+}	
+
+/** 输入框 */
+.txtContent {
+	width: 212px;
+	height: 150px;
+	resize: none;
+	overflow: hidden;
+	border-bottom-color: white;
+	border-bottom-style: solid;
+	border-bottom-width: 1px;
+	border-top: 0;
+	border-right: 0;
+	border-left: 0;
+	background-color : #b3f2fe;
+}
+
+.shortenUrlSpan {
+	background-image: url(../icons/link.png);
+	background-position-y: 2px;
+	background-repeat: no-repeat;
+	width: 16px;
+	display:block;
+	height: 16px;
+	float:left;
+	cursor: pointer;
+/*	background-color: red;*/
+}
+
+.simpleChar {
+	background-image: url(../icons/s-char3.png);
+	background-repeat: no-repeat;
+	width: 16px;
+	display:block;
+	height: 16px;
+	margin-left:10px;
+	cursor: pointer;
+	float:left;
+/*	background-color: blue;*/
+}
+
+.loadingdiv-show{
+	background-image: url(../icons/ajax-loader-green.gif);
+	background-repeat: no-repeat;
+	height: 16px;
+	width: 20px;	
+	float:left;
+	margin-left: 20px;
+}
+.loadingdiv{
+	height: 16px;
+	width: 20px;	
+	float:left;
+	margin-left: 20px;
+	display: block;
+}
+
+/** 文字统计区div */
+.countdiv{
+/*	background-color: green;*/
+	float:left;
+	height: 16px;
+	line-height: 16px;
+}
+.countdivEn{
+	margin-left: 10px;
+}
+
+.sendspan{
+/*	background-color:red;*/
+	text-decoration: underline;
+	cursor: pointer;
+	float:right;
+}

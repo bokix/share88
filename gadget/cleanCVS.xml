@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project name="clean cvs folder" basedir="." default="clean-cvs">
+	
+	
+	<target name="clean-cvs">    
+	  <defaultexcludes remove="**/.svn"/> 
+	  <defaultexcludes remove="**/.svn/**"/>    
+	  <delete includeemptydirs="true">    
+	    <fileset dir="." includes="**/.svn/**"/>    
+	  </delete>    
+	</target>
+
+	
+</project>

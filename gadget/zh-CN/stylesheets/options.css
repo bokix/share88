@@ -1,0 +1,73 @@
+body {
+	font-family: Cambria, Arial, Microsoft YaHei, Î¢ÈíÑÅºÚ;
+	font-weight: normal;
+	font-size: 12px;
+	margin: 0 0 0 0;
+	padding: 0 0 0 0;
+	width: 290px;
+	height: 200px;
+}
+.bindRow {
+	width: 100%;
+	height: 30px;
+	border-bottom-style: solid;
+	border-bottom-width: 1px;
+	vertical-align: middle;
+	/*	background-color: blue;*/
+	text-align: center;
+}
+
+.bind-img {
+	width: 24px;
+	height: 24px;
+	float: left;
+	margin-top: 3px;
+}
+
+.bind-user-name {
+	float: left;
+	line-height: 30px;
+	width: 60%;
+	padding-left: 10px;
+	overflow: hidden;
+	padding-right: 5px;
+	display: none;
+}
+.bind-action {
+	float: left;
+	line-height: 30px;
+	width: 60%;
+	padding-left: 10px;
+	overflow: hidden;
+	padding-right: 5px;
+	cursor: pointer;
+}
+
+.bind-remove {
+	float: right;
+	line-height: 30px;
+	margin-right: 20px;
+	cursor: pointer;
+	text-decoration: underline;
+}
+
+.inputdiv {
+	position: absolute;
+	background-color: white;
+	top: 10px;
+	left: 20px;
+	border-style:solid;
+	border-width:1px;
+	display: none;
+}
+
+.closeSpan {
+	text-decoration: underline;
+	font-style: italic;
+	cursor: pointer;
+}
+.serv-name {
+	text-decoration: underline;
+	font-style: italic;
+}
+

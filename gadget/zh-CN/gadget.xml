@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<gadget>
+  <name>分享吧</name>
+  <version><!--_locComment_text="{Locked}"-->1.0.0.0</version>
+  <author name="bokix">
+    <info url="http://t.sina.com.cn/bokix" text="http://t.sina.com.cn/bokix"/>
+    <logo src="icon.png"/>
+  </author>
+  <copyright><!--_locComment_text="{Locked}"-->© 2011</copyright>
+  <description>随时随地，只要按下win+G，分享吧就能立即出现在你眼前，将你所思所想分享至你的朋友。</description>
+    <icons>
+      <icon height="48" width="48" src="icon.png"/>
+    </icons>
+  <hosts>
+    <host name="sidebar">
+      <autoscaleDPI><!--_locComment_text="{Locked}"-->true</autoscaleDPI>
+      <base type="html" apiVersion="1.0.0" src="popup.html"/>
+      <permissions><!--_locComment_text="{Locked}"-->full</permissions>
+      <platform minPlatformVersion="1.0"/>
+      <defaultImage src="drag.png"/>
+    </host>
+  </hosts>
+</gadget>
