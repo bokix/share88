@@ -1,0 +1,47 @@
+<html>
+	<head> 
+		<title>share8</title>
+		<meta http-equiv="MSThemeCompatible" CONTENT="yes" />
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /> 
+		
+		<link rel="stylesheet" type="text/css" href="stylesheets/popup.css"> 
+		
+		<script type="text/javascript" src="jquery/js/jquery-1.4.2.min.js"></script>
+		
+		<script type="text/javascript" src="scripts/chinese-char-convert.js"></script> 
+		<script type="text/javascript" src="scripts/lib/base64.js"></script> 
+		<script type="text/javascript" src="scripts/lib/json2.js"></script> 
+		<script type="text/javascript" src="scripts/goo.gl.js"></script> 
+		<script type="text/javascript" src="scripts/util.js"></script> 
+		<script type="text/javascript" src="scripts/Result.js"></script> 
+
+		<script type="text/javascript" src="scripts/SinaApi.js"></script> 
+		<script type="text/javascript" src="scripts/TwitterApi.js"></script> 
+		<script type="text/javascript" src="scripts/Follow5Api.js"></script> 
+		<script type="text/javascript" src="scripts/SohuApi.js"></script> 
+		<script type="text/javascript" src="scripts/Net163Api.js"></script> 
+		
+		<script type="text/javascript" src="scripts/popup.js"></script> 
+		
+	</head>
+	<body onload="init();">
+		<g:background style="width:230px;height:200px;" src="icons/background.png"/>
+			<div class="maindiv">
+				<textarea class="txtContent" id="txtContent" onkeyup="onTextChange();"></textarea>
+			</div>
+			<div class="actiondiv">
+				<div class="shortenUrlSpan" title="缩短文本区中的URL" onclick="chgURL()"></div>
+				<div class="simpleChar" title="简体-繁体" onclick="traditionalized()"></div>
+				<div class="loadingdiv"></div>
+				<div class="countdiv">
+					<span class="msgCountZh msgCount">0/140</span>
+					<!-- <span class="countdivEn">英:</span><span class="msgCountEn msgCount">0/140</span>-->
+				</div>
+				<div class="sendspan" ><span onclick="javascript:clearTxt();">clean</span>&nbsp;|&nbsp;<span onclick="javascript:sendMsg();">send</span></div>
+			</div>
+			<div class="logdiv">
+			 
+			</div>
+		</g:background>
+	</body>
+</html>
