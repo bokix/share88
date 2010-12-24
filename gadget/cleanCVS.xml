@@ -2,11 +2,18 @@
 <project name="clean cvs folder" basedir="." default="clean-cvs">
 	
 	
-	<target name="clean-cvs">    
+	<target name="clean-svn">    
 	  <defaultexcludes remove="**/.svn"/> 
 	  <defaultexcludes remove="**/.svn/**"/>    
 	  <delete includeemptydirs="true">    
 	    <fileset dir="." includes="**/.svn/**"/>    
+	  </delete>    
+	</target>
+	<target name="clean-cvs">    
+	  <defaultexcludes remove="**/cvs"/> 
+	  <defaultexcludes remove="**/cvs/**"/>    
+	  <delete includeemptydirs="true">    
+	    <fileset dir="." includes="**/cvs/**"/>    
 	  </delete>    
 	</target>
 
