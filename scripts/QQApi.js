@@ -4,7 +4,7 @@
  */
 
 (function($) {
-	Net163Api = {
+	QQApi = {
 		callAjax : function(opt) {
 			var p = {
 				timeout : 30 * 1000,
@@ -39,10 +39,41 @@
 						log('post2 callback.');
 						log(d);
 						var result = new Result();
-						result.srvName = 'net163';
+						result.srvName = 'qq';
 						result.ok = true;
-						
+
 						callback(result);
+					});
+		},
+
+		getUserInfo : function(tokenObj, callback) {
+			var o = {
+				path : apiURL.userInfo,
+				parameters : {
+					"format" : "json",
+					"oauth_token" : tokenObj.oauth_token,
+					"oauth_version" : "1.0"
+				},
+				signatures : {
+					consumer_key : consumer_key,
+					shared_secret : consumer_secret,
+					oauth_secret : tokenObj.oauth_token_secret
+				}
+			};
+			log("obj:" + JSON.stringify(o));
+
+			var oauthObject = OAuthSimple().sign(o);
+
+			var url = oauthObject.signed_url;
+
+			log("url:" + url);
+			$.get(url, null, function(d) {
+						var result = new Result();
+						result.srvName = "qq";
+						result.ok = true;
+						result.data = d;
+						callback(result);
+
 					});
 		},
 		oauth : function(callback) {
@@ -53,7 +84,10 @@
 
 			var config = {
 				path : apiURL.request_token,
-				parameters : '',
+				parameters : {
+					oauth_callback : 'null',
+					oauth_version : "1.0"
+				},
 				signatures : {
 					api_key : consumer_key,
 					shared_secret : consumer_secret
@@ -70,12 +104,12 @@
 				type : "GET",
 				success : function(data, textStatus) {
 					var o = Util.parseResponseText(data);
-					Net163Api.authenticate(o.oauth_token, o.oauth_token_secret,
+					QQApi.authenticate(o.oauth_token, o.oauth_token_secret,
 							callback);
 				},
 				error : function(xhr, textStatus, errorThrown) {
 					var result = new Result();
-					result.srvName = 'net163';
+					result.srvName = 'qq';
 					result.ok = false;
 					try {
 						result.responseText = textStatus;
@@ -98,7 +132,7 @@
 			var config = {
 				path : apiURL.authenticate,
 				parameters : {
-					oauth_callback : net163_domain
+					oauth_callback : "null"
 				},
 				signatures : {
 					api_key : consumer_key,
@@ -107,8 +141,6 @@
 					oauth_secret : oauth_token_secret
 				}
 			};
-			// var c = ".net163 input[name=pin]";
-			// $(c).val(oauth_token);
 
 			log("config:" + JSON.stringify(config));
 
@@ -123,15 +155,16 @@
 					});
 
 		},
-		getAccessToken : function(callback) {
+		getAccessToken : function(pin, callback) {
 			log(JSON.stringify(tmpToken));
 			log('get access token.');
 
 			var config = {
 				path : apiURL.access_token,
 				parameters : {
-					"oauth_token" : tmpToken.oauth_token
-					// "oauth_verifier" : tmpOauthToken.pin,
+					"oauth_token" : tmpToken.oauth_token,
+					"oauth_version" : "1.0",
+					"oauth_verifier" : pin
 				},
 				signatures : {
 					consumer_key : consumer_key,
@@ -154,7 +187,7 @@
 
 						var result = new Result();
 						result.ok = true;
-						result.srvName = "net163";
+						result.srvName = "qq";
 						result.data = Util.parseResponseText(data);
 						callback(result);
 					});
@@ -162,23 +195,28 @@
 
 	};
 
-	var net163_domain = 'http://t.163.com';
-	var api_domain = 'http://api.t.163.com';
-	var consumer_key = "nvEarTz6ESkybgKq";
-	var consumer_secret = "LKDLe4P6G6GulqNOHwwvRdz3LopqG3Vj";
-
-	var apiURL = {
-		update : api_domain + '/statuses/update.json',
-		upload : api_domain + '/statuses/upload.json',
-		request_token : api_domain + '/oauth/request_token',
-		authenticate : api_domain + '/oauth/authenticate',
-		access_token : api_domain + '/oauth/access_token'
+	var log = function(m) {
+		chrome.extension.getBackgroundPage().log(m);
 	};
+
+	var consumer_key = "8c0551da0a0b4e1589eca6d3442fd5d8";
+	var consumer_secret = "95d1bbdf2281950ba66900fb053a180f";
+	// var domain_qq = 'http://t.qq.com';
+	var domain_qq = 'http://localhost:8080/demo/test.jsp';
+
+	var api_domain_https = 'https://open.t.qq.com';
+	var api_domain_http = 'http://open.t.qq.com';
+
 	var tmpToken = {
 		oauth_token : "",
 		oauth_token_secret : ""
 	};
-	var log = function(obj) {
-		chrome.extension.getBackgroundPage().log(obj);
+	var apiURL = {
+		update : api_domain_http + '/api/t/add',
+		userInfo : api_domain_http + '/api/user/info',
+
+		request_token : api_domain_https + '/cgi-bin/request_token',
+		authenticate : api_domain_https + '/cgi-bin/authorize',
+		access_token : api_domain_https + '/cgi-bin/access_token'
 	};
 })(jQuery);
