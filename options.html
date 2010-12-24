@@ -2,16 +2,19 @@
 	<head> 
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /> 
 		<link rel="Stylesheet" type="text/css" href="jquery/css/gray/jquery-ui-1.8.custom.css">	
+		<link rel="stylesheet" type="text/css" href="stylesheets/options.css">
+
 		<script type="text/javascript" src="jquery/js/jquery-1.4.2.min.js"></script>
 		<script type="text/javascript" src="jquery/js/jquery-ui-1.8.custom.min.js"></script>
 		
 		<script type="text/javascript" src="scripts/lib/base64.js"></script>
+		
 		<script type="text/javascript" src="scripts/chrome_ex_oauthsimple.js"></script>
-		<script type="text/javascript" src="scripts/chrome_ex_oauth.js"></script>
-		<script type="text/javascript" src="scripts/getOauth.js"></script>
-		<link rel="stylesheet" type="text/css" href="stylesheets/options.css">
 		<script type="text/javascript" src="scripts/util.js"></script>
+		<script type="text/javascript" src="scripts/Result.js"></script>
 		<script type="text/javascript" src="scripts/options.js"></script>
+		<script type="text/javascript" src="scripts/Net163Api.js"></script>
+		<script type="text/javascript" src="scripts/QQApi.js"></script>
 	</head> 
 
 	<body onload="onLoadOptionPage();"> 
@@ -26,7 +29,8 @@
 					<li><a href="#tabs-3" class="tabs-title">follow5</a></li>
 					<li><a href="#tabs-4" class="tabs-title">sohu</a></li>
 					<li><a href="#tabs-5" class="tabs-title">163</a></li>
-					<li><a href="#tabs-6" class="tabs-title">帮助</a></li>
+					<li><a href="#tabs-6" class="tabs-title">qq</a></li>
+					<li><a href="#tabs-7" class="tabs-title">帮助</a></li>
 				</ul>
 				<div id="tabs-1" class="tabs-page sina">
 					<table cellspacing="3" cellpadding="2"> 
@@ -95,19 +99,28 @@
 				<div id="tabs-5" class="tabs-page net163">
 					<table cellspacing="3" cellpadding="2"> 
 						<tr>
-							<td class="align-right">登陆名</td>
-							<td class="align-left"><input type="text" name="loginName"/></td>
+							<td class="align-right"></td>
+							<td class="align-left"><a href="#" onclick="oauth('net163')">getRequestToken</a></td>
 						</tr>
 						<tr>
-							<td class="align-right">登陆密码 </td>
-							<td class="align-left"><input type="password" name="passWord"/></td>
-						</tr>
-						<tr>
-							<td class="align-center" colspan="2"><a href="#" onclick="save('net163');">保存</a></td>
+							<td class="align-right"></td>
+							<td class="align-left"><a href="#" onclick="savePin('net163')">我已授权</a></td>
 						</tr>
 					</table> 
 				</div>
-				<div id="tabs-6" class="tabs-page">
+				<div id="tabs-6" class="tabs-page qq">
+					<table cellspacing="3" cellpadding="2"> 
+						<tr>
+							<td class="align-right"></td>
+							<td class="align-left"><a href="#" onclick="oauth('qq')">getRequestToken</a></td>
+						</tr>
+						<tr>
+							<td class="align-right"><input type="text" name="pin"></td>
+							<td class="align-left"><a href="#" onclick="savePin('qq')">我已授权</a><a href="#" onclick="testMsg('qq')">testmsg</a><a href="#" onclick="getUserInfo('qq')">getUserInfo</a></td>
+						</tr>
+					</table> 
+				</div>
+				<div id="tabs-7" class="tabs-page">
 					<div style="font-size: 10px;">
 					<p>你可以分别绑定自己的网易微博，新浪微博，twitter（如果你有api请自行填写正确，否则无法发送至twitter），sohu微博等，然后当你浏览网页的时候，针对网页中选中的文字，图片，链接，甚至整个页面都可以通过
 					鼠标右键快速的分享至你绑定的微博。
