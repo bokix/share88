@@ -1,24 +1,138 @@
-﻿var oauth=ChromeExOAuth.initBackgroundPage({
-	'request_url': "http://api.t.163.com/oauth/request_token",
-	'authorize_url': "http://api.t.163.com/oauth/authenticate",
-	'access_url': "http://api.t.163.com/oauth/access_token",
-	'consumer_key':"nvEarTz6ESkybgKq",
-	'consumer_secret': "LKDLe4P6G6GulqNOHwwvRdz3LopqG3Vj",
-	'scope':'',
-	'app_name': "分享吧"
-});
-function getOauth(servType){
-	if (!oauth.hasToken()) {
-		oauth.authorize(function() {
-					alert('oauth 163 ok.');
-				});
-	} else {
-		alert('already oauth.' + oauth.getToken());
+﻿/**
+ * @include "util.js"
+ * @include "Result.js"
+ */
+
+var tmpOauthToken = {};
+
+function oauth(type) {
+	switch (type) {
+		case 'net163' :
+			Net163Api.oauth(oauthCallBack);
+			break;
+		case 'qq' :
+			QQApi.oauth(oauthCallBack);
+			break;
 	}
-	
-	
+}
+function savePin(type) {
+	switch(type){
+		case 'net163':
+			Net163Api.getAccessToken(oauthCallBack);
+		break;
+		case 'qq':
+			var pin = $(".qq input[name=pin]").val();
+			QQApi.getAccessToken(pin, oauthCallBack);
+		break;
+	}
 }
 
+
+function testMsg(type) {
+	var msg = "test2" + Math.random() + "wow";
+
+	var tokenObj = Util.getObjData("accessToken")[type];
+	var o = {};
+	switch (type) {
+		case 'net163' :
+			o = {
+				path : "http://api.t.163.com/statuses/update.json",
+				action : 'post',
+				parameters : {
+					status : msg
+				},
+				signatures : {
+					consumer_key : "nvEarTz6ESkybgKq",
+					shared_secret : "LKDLe4P6G6GulqNOHwwvRdz3LopqG3Vj",
+					oauth_token : tokenObj.oauth_token,
+					oauth_secret : tokenObj.oauth_token_secret
+				}
+			};
+			break;
+		case 'qq' :
+			o = {
+				path : "http://open.t.qq.com/api/t/add",
+				parameters : {
+					"format":"json",
+					"content":msg
+					,"clientip":"127.0.0.1"
+					//"jing":"234.2",
+					//"wei":"33",
+					,"oauth_token" : tokenObj.oauth_token
+					,"oauth_version":"1.0"
+				},
+				signatures : {
+					consumer_key : "8c0551da0a0b4e1589eca6d3442fd5d8",
+					shared_secret : "95d1bbdf2281950ba66900fb053a180f",
+					oauth_secret : tokenObj.oauth_token_secret
+				}
+			};
+			break;
+	}
+	log("obj:" + JSON.stringify(o));
+
+	var oauthObject = OAuthSimple().sign(o);
+
+	var url = oauthObject.signed_url;
+
+	log("url:" + url);
+	$.get(url, null, function(d) {
+				log('post2 callback.');
+				log(d);
+			});
+
+}
+function getUserInfo(type){
+	window.setInterval("getUserInfo2('qq')",30000);
+}
+function getUserInfo2(type){
+	var msg = "test2 " + Math.random() + " wow.";
+
+	var tokenObj = Util.getObjData("accessToken")[type];
+	var o = {
+				path : "http://open.t.qq.com/api/user/info",
+				parameters : {
+					"format":"json",
+					"oauth_token" : tokenObj.oauth_token,
+					"oauth_version":"1.0"
+				},
+				signatures : {
+					consumer_key : "8c0551da0a0b4e1589eca6d3442fd5d8",
+					shared_secret : "95d1bbdf2281950ba66900fb053a180f",
+					oauth_secret : tokenObj.oauth_token_secret
+				}
+			};
+	log("obj:" + JSON.stringify(o));
+
+	var oauthObject = OAuthSimple().sign(o);
+
+	var url = oauthObject.signed_url;
+
+	log("url:" + url);
+	$.get(url, null, function(d) {
+				log('post2 callback.');
+				log(d);
+			});
+}
+function oauthCallBack(/* Result */r) {
+	log(r);
+	if (!r.ok) {
+		log('error.' + r.responseText);
+		return;
+	}
+	var accessToken = Util.getObjData("accessToken") || {};
+	accessToken[r.srvName] = r.data;
+
+	log('to save access token');
+	log(JSON.stringify(accessToken));
+
+	Util.saveData("accessToken", JSON.stringify(accessToken));
+}
+
+
+function log(obj) {
+	chrome.extension.getBackgroundPage().log(obj);
+}
 
 function save(type) {
 	var inputClsKey = "." + type + " input"; // like: ".sina input"
@@ -39,18 +153,22 @@ function save(type) {
 }
 function showServices(type) {
 	var allUserData = Util.getObjData("allUserData") || {};
-	var srv = "<a class='bindmsg bindmsg-"+type+"'>"+allUserData[type].loginName + "</a><a href='#' onclick=\"remove('" + type + "')\">"+chrome.i18n.getMessage("removeBind");
-	$(".alreadyServices ul").append("<li class='"+type+"'>" + srv + "</li>");
+	var srv = "<a class='bindmsg bindmsg-" + type + "'>"
+			+ allUserData[type].loginName
+			+ "</a><a href='#' onclick=\"remove('" + type + "')\">"
+			+ chrome.i18n.getMessage("removeBind");
+	$(".alreadyServices ul")
+			.append("<li class='" + type + "'>" + srv + "</li>");
 }
 
 function remove(type) {
-	//var c = ".alreadyServices li:contains('" + type + "')";
-	$(".alreadyServices").find("."+type).remove();
-	//$(c).remove();
+	// var c = ".alreadyServices li:contains('" + type + "')";
+	$(".alreadyServices").find("." + type).remove();
+	// $(c).remove();
 	var allServices = Util.getObjData("alreadyServices") || {};
 	delete allServices[type];
 	Util.saveData("alreadyServices", JSON.stringify(allServices));
-	
+
 	var allUserData = Util.getObjData("allUserData") || {};
 	delete allUserData[type];
 	Util.saveData("allUserData", JSON.stringify(allUserData));
