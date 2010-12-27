@@ -5,157 +5,158 @@
 
 (function($) {
 	Net163Api = {
-		callAjax : function(opt) {
-			var p = {
-				timeout : 30 * 1000,
-				type : "POST",
-				async : true
-			};
-
-			var prop = {};
-			$.extend(prop, p, opt);
-			$.ajax(prop);
-		},
 		update : function(msg, tokenObj, callback) {
-			var o = {
-				path : apiURL.update,
-				action : 'post',
-				parameters : {
-					status : msg
-				},
-				signatures : {
-					consumer_key : consumer_key,
-					shared_secret : consumer_secret,
-					oauth_token : tokenObj.oauth_token,
-					oauth_secret : tokenObj.oauth_token_secret
-				}
+			log('net163 upate...');
+
+			var accessor = {
+				consumerSecret : consumer_secret,
+				tokenSecret : tokenObj.oauth_token_secret
 			};
 
-			var oauthObject = OAuthSimple().sign(o);
+			var para = {
+				oauth_consumer_key : consumer_key,
+				oauth_token : tokenObj.oauth_token,
+				status : msg
+			};
 
-			var url = oauthObject.signed_url;
+			var message = {
+				action : apiURL.update,
+				method : "POST",
+				parameters : para
+			};
 
-			$.post(url, null, function(d) {
-						log('post2 callback.');
-						log(d);
-						var result = new Result();
-						result.srvName = 'net163';
-						result.ok = true;
-						
-						callback(result);
+			OAuth.setTimestampAndNonce(message);
+			OAuth.SignatureMethod.sign(message, accessor);
+
+			var result = new Result();
+			result.srvName = 'net163';
+			$.ajax({
+						type : "POST",
+						data : message.parameters,
+						url : message.action,
+						timeout : 30 * 1000,
+						async : true,
+						success : function(data) {
+							log('post success.');
+							result.ok = true;
+							callback(result);
+
+						},
+						error : function(xhr, textStatus, errorThrown) {
+							log('error.');
+							log(xhr);
+							log(textStatus);
+							log(errorThrown);
+							result.ok = false;
+							try {
+								result.responseText = textStatus;
+								if (xhr.responseText) {
+									result.data = JSON.parse(xhr.responseText);
+									result.responseText = result.data.error;
+								}
+							} catch (err) {
+								result.responseText = "parse error.";
+							}
+							callback(result);
+						}
+
 					});
-		},
-		oauth : function(callback) {
-			this.getRequestToken(callback);
 		},
 		getRequestToken : function(callback) {
 			log('get request token...');
 
-			var config = {
-				path : apiURL.request_token,
-				parameters : '',
-				signatures : {
-					api_key : consumer_key,
-					shared_secret : consumer_secret
-				}
+			var accessor = {
+				consumerSecret : consumer_secret
 			};
-			var oauthObject = OAuthSimple().sign(config);
-
-			var signedUrl = oauthObject.signed_url;
-
-			log(signedUrl);
-
-			var opt = {
-				url : signedUrl,
-				type : "GET",
-				success : function(data, textStatus) {
-					var o = Util.parseResponseText(data);
-					Net163Api.authenticate(o.oauth_token, o.oauth_token_secret,
-							callback);
-				},
-				error : function(xhr, textStatus, errorThrown) {
-					var result = new Result();
-					result.srvName = 'net163';
-					result.ok = false;
-					try {
-						result.responseText = textStatus;
-						if (xhr.responseText) {
-							result.data = JSON.parse(xhr.responseText);
-							result.responseText = result.data.error;
-						}
-					} catch (err) {
-						result.responseText = "parse error.";
-					}
-					callback(result);
-				}
+			var para = {
+				oauth_consumer_key : consumer_key
 			};
 
-			this.callAjax(opt);
-		},
-		authenticate : function(oauth_token, oauth_token_secret, callback) {
-			log('authenticate....');
-
-			var config = {
-				path : apiURL.authenticate,
-				parameters : {
-					oauth_callback : net163_domain
-				},
-				signatures : {
-					api_key : consumer_key,
-					shared_secret : consumer_secret,
-					oauth_token : oauth_token,
-					oauth_secret : oauth_token_secret
-				}
+			var message = {
+				action : apiURL.request_token,
+				method : "get",
+				parameters : para
 			};
-			// var c = ".net163 input[name=pin]";
-			// $(c).val(oauth_token);
+			OAuth.setTimestampAndNonce(message);
+			OAuth.SignatureMethod.sign(message, accessor);
 
-			log("config:" + JSON.stringify(config));
-
-			var oauthObject = OAuthSimple().sign(config);
-
-			var signedUrl = oauthObject.signed_url;
-
-			tmpToken.oauth_token = oauth_token;
-			tmpToken.oauth_token_secret = oauth_token_secret;
-			chrome.tabs.create({
-						url : signedUrl
+			$.get(message.action, message.parameters, function(data) {
+						log('get request token call back.');
+						log(data);
+						var o = Util.parseResponseText(data);
+						callback(o);
 					});
 
+		},
+		authenticate : function(callback) {
+			log('authenticate....');
+			this.getRequestToken(function(requestToken) {
+						var accessor = {
+							consumerSecret : consumer_secret,
+							tokenSecret : requestToken.oauth_token_secret
+						};
+						var para = {
+							oauth_consumer_key : consumer_key,
+							oauth_token : requestToken.oauth_token,
+							oauth_callback : net163_domain
+						};
+
+						var message = {
+							action : apiURL.authenticate,
+							method : "get",
+							parameters : para
+						};
+						OAuth.setTimestampAndNonce(message);
+						OAuth.SignatureMethod.sign(message, accessor);
+						var url = OAuth.addToURL(apiURL.authenticate,
+								message.parameters);
+
+						log(url);
+
+						tmpToken.oauth_token = requestToken.oauth_token;
+						tmpToken.oauth_token_secret = requestToken.oauth_token_secret;
+
+						var result = new Result();
+						result.srvName = 'net163';
+						result.ok = true;
+
+						callback(result);
+
+						chrome.tabs.create({
+									url : url
+								});
+
+					});
 		},
 		getAccessToken : function(callback) {
 			log(JSON.stringify(tmpToken));
 			log('get access token.');
 
-			var config = {
-				path : apiURL.access_token,
-				parameters : {
-					"oauth_token" : tmpToken.oauth_token
-					// "oauth_verifier" : tmpOauthToken.pin,
-				},
-				signatures : {
-					consumer_key : consumer_key,
-					shared_secret : consumer_secret,
-					oauth_secret : tmpToken.oauth_token_secret
-				}
+			var accessor = {
+				consumerSecret : consumer_secret,
+				tokenSecret : tmpToken.oauth_token_secret
+			};
+			var para = {
+				oauth_consumer_key : consumer_key,
+				oauth_token : tmpToken.oauth_token
 			};
 
-			log("config:" + JSON.stringify(config));
+			var message = {
+				action : apiURL.access_token,
+				method : "get",
+				parameters : para
+			};
+			OAuth.setTimestampAndNonce(message);
+			OAuth.SignatureMethod.sign(message, accessor);
 
-			var oauthObject = OAuthSimple().sign(config);
-
-			var signedUrl = oauthObject.signed_url;
-
-			log(signedUrl);
-
-			$.get(signedUrl, null, function(data) {
-						log('get access token call back.');
+			$.get(message.action, message.parameters, function(data) {
+						log('getAccessToken call back.');
 						log(data);
-
 						var result = new Result();
 						result.ok = true;
 						result.srvName = "net163";
 						result.data = Util.parseResponseText(data);
+						result.data.name = '已绑定';
 						callback(result);
 					});
 		}

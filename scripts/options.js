@@ -3,178 +3,189 @@
  * @include "Result.js"
  */
 
-var tmpOauthToken = {};
-
 function oauth(type) {
 	switch (type) {
 		case 'net163' :
-			Net163Api.oauth(oauthCallBack);
+			oauthStart(".net163Div .msg");
+			Net163Api.authenticate(function(/* Result */result) {
+						oauthEnd(".net163Div .msg");
+						if (!result.ok) {
+							$(".net163Div .msg").empty()
+									.html(result.responseText);
+						}
+					});
 			break;
 		case 'qq' :
-			QQApi.oauth(oauthCallBack);
+			oauthStart(".qqDiv .msg");
+			QQApi.authenticate(function(/* Result */result) {
+						oauthEnd(".qqDiv .msg");
+						if (!result.ok) {
+							$(".qqDiv .msg").empty().html(result.responseText);
+						}
+
+					});
+			break;
+		default :
 			break;
 	}
 }
 function savePin(type) {
-	switch(type){
-		case 'net163':
-			Net163Api.getAccessToken(oauthCallBack);
-		break;
-		case 'qq':
-			var pin = $(".qq input[name=pin]").val();
-			QQApi.getAccessToken(pin, oauthCallBack);
-		break;
-	}
-}
-
-
-function testMsg(type) {
-	var msg = "test2" + Math.random() + "wow";
-
-	var tokenObj = Util.getObjData("accessToken")[type];
-	var o = {};
 	switch (type) {
 		case 'net163' :
-			o = {
-				path : "http://api.t.163.com/statuses/update.json",
-				action : 'post',
-				parameters : {
-					status : msg
-				},
-				signatures : {
-					consumer_key : "nvEarTz6ESkybgKq",
-					shared_secret : "LKDLe4P6G6GulqNOHwwvRdz3LopqG3Vj",
-					oauth_token : tokenObj.oauth_token,
-					oauth_secret : tokenObj.oauth_token_secret
-				}
-			};
+			oauthStart(".net163Div .msg");
+			Net163Api.getAccessToken(function(/* Result */result) {
+						oauthEnd(".net163Div .msg");
+						if (!result.ok) {
+							$(".net163Div .msg").empty()
+									.html(result.responseText);
+						} else {
+							oauthCallBack(result);
+						}
+					});
 			break;
 		case 'qq' :
-			o = {
-				path : "http://open.t.qq.com/api/t/add",
-				parameters : {
-					"format":"json",
-					"content":msg
-					,"clientip":"127.0.0.1"
-					//"jing":"234.2",
-					//"wei":"33",
-					,"oauth_token" : tokenObj.oauth_token
-					,"oauth_version":"1.0"
-				},
-				signatures : {
-					consumer_key : "8c0551da0a0b4e1589eca6d3442fd5d8",
-					shared_secret : "95d1bbdf2281950ba66900fb053a180f",
-					oauth_secret : tokenObj.oauth_token_secret
-				}
-			};
+			oauthStart(".qqDiv .msg");
+			var pin = $.trim($(".qqDiv input[name=pin]").val());
+
+			if (pin == "") {
+				oauthEnd(".qqDiv .msg");
+				$(".qqDiv .msg").empty().html("请输入授权码");
+				return false;
+			}
+			QQApi.getAccessToken($.trim(pin), function(/* Result */result) {
+						oauthEnd(".qqDiv .msg");
+						if (!result.ok) {
+							$(".qqDiv .msg").empty().html(result.responseText);
+						} else {
+							oauthCallBack(result);
+						}
+
+					});
 			break;
 	}
-	log("obj:" + JSON.stringify(o));
-
-	var oauthObject = OAuthSimple().sign(o);
-
-	var url = oauthObject.signed_url;
-
-	log("url:" + url);
-	$.get(url, null, function(d) {
-				log('post2 callback.');
-				log(d);
-			});
+}
+function oauthStart(className) {
+	var v = "<img src='../icons/ajax-loader.gif'></img>";
+	$(className).html(v);
 
 }
-function getUserInfo(type){
-	window.setInterval("getUserInfo2('qq')",30000);
+function oauthEnd(className) {
+	$(className).empty();
 }
-function getUserInfo2(type){
-	var msg = "test2 " + Math.random() + " wow.";
 
-	var tokenObj = Util.getObjData("accessToken")[type];
-	var o = {
-				path : "http://open.t.qq.com/api/user/info",
-				parameters : {
-					"format":"json",
-					"oauth_token" : tokenObj.oauth_token,
-					"oauth_version":"1.0"
-				},
-				signatures : {
-					consumer_key : "8c0551da0a0b4e1589eca6d3442fd5d8",
-					shared_secret : "95d1bbdf2281950ba66900fb053a180f",
-					oauth_secret : tokenObj.oauth_token_secret
-				}
-			};
-	log("obj:" + JSON.stringify(o));
-
-	var oauthObject = OAuthSimple().sign(o);
-
-	var url = oauthObject.signed_url;
-
-	log("url:" + url);
-	$.get(url, null, function(d) {
-				log('post2 callback.');
-				log(d);
-			});
-}
 function oauthCallBack(/* Result */r) {
 	log(r);
 	if (!r.ok) {
 		log('error.' + r.responseText);
 		return;
 	}
+	$('.inputdiv').hide();
+
 	var accessToken = Util.getObjData("accessToken") || {};
 	accessToken[r.srvName] = r.data;
 
-	log('to save access token');
-	log(JSON.stringify(accessToken));
+	log('accessToken:' + JSON.stringify(accessToken));
 
 	Util.saveData("accessToken", JSON.stringify(accessToken));
+
+	var allUserData = Util.getObjData("allUserData") || {};
+	allUserData[r.srvName] = {};
+	allUserData[r.srvName].loginName = r.data.name || "";
+
+	log("allUserData[" + r.srvName + "]:"
+			+ JSON.stringify(allUserData[r.srvName]));
+
+	Util.saveData("allUserData", JSON.stringify(allUserData));
+
+	save(r.srvName);
 }
 
-
-function log(obj) {
-	chrome.extension.getBackgroundPage().log(obj);
+function showInputDiv(type) {
+	var c = "." + type + "Div";
+	$(c).show();
+	var vi = c + " input:first";
+	$(vi).focus();
 }
 
-function save(type) {
-	var inputClsKey = "." + type + " input"; // like: ".sina input"
+/**
+ * 不需要oauth验证的，保存页面form
+ * 
+ * @param {}
+ *            type
+ */
+function saveForm(type) {
+	$(".inputdiv").hide();
+	var inputClsKey = "." + type + "Input"; // like: ".sinaInput"
 	var allUserData = Util.getObjData("allUserData") || {};
 	allUserData[type] = {};
 	$(inputClsKey).each(function() {
 				allUserData[type][this.name] = this.value;
 			});
+
+	log('allUserData:' + JSON.stringify(allUserData));
+
 	Util.saveData("allUserData", JSON.stringify(allUserData));
 
-	var allServices = Util.getObjData("alreadyServices") || {};
+	save(type);
+}
 
-	if (!allServices[type]) {
-		allServices[type] = true;
-		showServices(type);
-		Util.saveData("alreadyServices", JSON.stringify(allServices));
-	}
+function save(type) {
+	log('save...');
+
+	var allServices = Util.getObjData("alreadyServices") || {};
+	allServices[type] = true;
+
+	log('alreadyServices:' + JSON.stringify(allServices));
+
+	Util.saveData("alreadyServices", JSON.stringify(allServices));
+
+	showServices(type);
 }
 function showServices(type) {
 	var allUserData = Util.getObjData("allUserData") || {};
-	var srv = "<a class='bindmsg bindmsg-" + type + "'>"
-			+ allUserData[type].loginName
-			+ "</a><a href='#' onclick=\"remove('" + type + "')\">"
-			+ chrome.i18n.getMessage("removeBind");
-	$(".alreadyServices ul")
-			.append("<li class='" + type + "'>" + srv + "</li>");
+	// var srv = "<a class='bindmsg
+	// bindmsg-"+type+"'>"+allUserData[type].loginName + "</a><a
+	// href='javascript:remove(\""+type+"\")'>remove</a>";
+	var cr = ".bind-" + type + "-row";
+	var cn = cr + " .bind-user-name";
+	var ca = cr + " .bind-action";
+
+	$(ca).hide("normal", function() {
+				$(cn).text(allUserData[type].loginName).show();
+			});
+
+	// $(".alreadyServices ul").append("<li class='"+type+"'>" + srv + "</li>");
 }
 
 function remove(type) {
-	// var c = ".alreadyServices li:contains('" + type + "')";
-	$(".alreadyServices").find("." + type).remove();
-	// $(c).remove();
-	var allServices = Util.getObjData("alreadyServices") || {};
-	delete allServices[type];
-	Util.saveData("alreadyServices", JSON.stringify(allServices));
+	log('remove:' + type);
+	var cr = ".bind-" + type + "-row";
+	var cn = cr + " .bind-user-name";
+	var ca = cr + " .bind-action";
 
+	$(cn).html("").hide("normal", function() {
+				$(ca).show();
+			});
+
+	// $(".alreadyServices").find("."+type).remove();
+	var allServices = Util.getObjData("alreadyServices") || {};
 	var allUserData = Util.getObjData("allUserData") || {};
+	var accessToken = Util.getObjData("accessToken") || {};
+
+	delete accessToken[type];
+	delete allServices[type];
 	delete allUserData[type];
+
+	Util.saveData("accessToken", JSON.stringify(accessToken));
+	Util.saveData("alreadyServices", JSON.stringify(allServices));
 	Util.saveData("allUserData", JSON.stringify(allUserData));
+
+	log("accessToken:" + JSON.stringify(accessToken));
+	log("allServices:" + JSON.stringify(allServices));
+	log("allUserData:" + JSON.stringify(allUserData));
 }
 
-function loadPage() {
+function onLoadOptionPage() {
 	var allServices = Util.getObjData("alreadyServices") || {};
 	for (var i in allServices) {
 		if (allServices[i]) {
@@ -183,12 +194,6 @@ function loadPage() {
 	}
 }
 
-function onLoadOptionPage() {
-	$("#mainTabs").tabs();
-	$(".tabs-page a").button();
-	$("#divOptionsBottom #btnSave").button("option", "icons", {
-				primary : 'ui-icon-disk'
-			});
-
-	loadPage();
+function log(obj) {
+	chrome.extension.getBackgroundPage().log(obj);
 }
