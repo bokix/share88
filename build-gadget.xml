@@ -44,7 +44,7 @@
 		</apply>
 	</target>
 	<target name="zip" depends="compress-css">
-		<zip destfile="${dist}/share8.zip"
+		<zip destfile="${dist}/share8.gadget"
 		       basedir="${deploy}"
 		  />
 	</target>
