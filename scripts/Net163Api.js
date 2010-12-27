@@ -156,7 +156,7 @@
 						result.ok = true;
 						result.srvName = "net163";
 						result.data = Util.parseResponseText(data);
-						result.data.name = '已绑定';
+						result.data.name = chrome.i18n.getMessage("bind");
 						callback(result);
 					});
 		}

@@ -35,9 +35,9 @@ function shortenURL() {
 
 		for (var i = 0; i < urlArr.length; i++) {
 			var source = urlArr[i];
-			var startIndex = content.indexOf(source);
-			var endIndex = startIndex + source.length;
-			txtObj.setSelectionRange(startIndex,endIndex);
+			
+			log("short:[" + source + "]");
+			
 			var response = chrome.extension.getBackgroundPage()
 					.shortenUrl(source);
 			if (response.status == "success") {
@@ -127,8 +127,11 @@ function initLog() {
 	}
 	msg = msg.substring(5,msg.length);
 	msg = "发送错误：" + msg;
-	console.log("error msg:" + msg);
+	log("error msg:" + msg);
 	setMsg(msg);
+}
+function log(msg){
+	chrome.extension.getBackgroundPage().log(msg);
 }
 function setMsg(msg) {
 	$("#divStatus").html(msg);

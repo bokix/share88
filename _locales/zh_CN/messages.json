@@ -16,5 +16,8 @@
 	},
 	"removeBind" : {
 		"message" : "解除绑定"
+	},
+	"bind" : {
+		"message" : "已绑定"
 	}
 }
