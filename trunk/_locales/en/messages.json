@@ -16,5 +16,8 @@
 	},
    "removeBind" : {
 		"message" : "remove"
+	},
+	"bind" : {
+		"message" : "ok"
 	}
 }
