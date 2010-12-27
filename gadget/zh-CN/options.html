@@ -2,15 +2,17 @@
 <html>
 	<head> 
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /> 
-		<link rel="Stylesheet" type="text/css" href="jquery/css/gray/jquery-ui-1.8.custom.css">	
 		<link rel="stylesheet" type="text/css" href="stylesheets/options.css">
 		<script type="text/javascript" src="jquery/js/jquery-1.4.2.min.js"></script>
-		<script type="text/javascript" src="jquery/js/jquery-ui-1.8.custom.min.js"></script>
 		
 		<script type="text/javascript" src="scripts/lib/base64.js"></script>
 		<script type="text/javascript" src="scripts/lib/json2.js"></script>
-		<script type="text/javascript" src="scripts/getOauth.js"></script>
+		<script type="text/javascript" src="scripts/lib/sha1.js"></script>
+		<script type="text/javascript" src="scripts/lib/oauth.js"></script>
 		<script type="text/javascript" src="scripts/util.js"></script>
+		<script type="text/javascript" src="scripts/Result.js"></script>
+		<script type="text/javascript" src="scripts/Net163Api.js"></script>
+		<script type="text/javascript" src="scripts/QQApi.js"></script>
 		<script type="text/javascript" src="scripts/options.js"></script>
 		<script>
 		
@@ -48,6 +50,12 @@
 			<div class="bind-user-name"></div>
 			<div class="bind-action" onclick="showInputDiv('net163')">绑定</div>
 			<div class="bind-remove" onclick="remove('net163')">remove</div>
+		</div>
+		<div class="bindRow bind-qq-row" title="网易微博">
+			<img src="icons/qq-24.png" class="bind-img" title="QQ微博"></img>
+			<div class="bind-user-name"></div>
+			<div class="bind-action" onclick="showInputDiv('qq')">绑定</div>
+			<div class="bind-remove" onclick="remove('qq')">remove</div>
 		</div>
 		<div class="inputdiv sinaDiv">
 			<table>
@@ -119,16 +127,42 @@
 		<div class="inputdiv net163Div">
 			<table>
 				<tr>
-					<td align="left" colspan="2" class="serv-name">网易微博</td>
+					<td align="left" colspan="2" class="serv-name">网易微博&nbsp;<span class="msg"></span></td>
+				</tr>
+				<tr style="line-height: 20px;">
+					<td align="center">点击"授权"按钮进行授权，授权完成后，请回到本页面，再点击"授权完成"按钮即可</td>
 				</tr>
 				<tr>
-					<td align="right">name:</td><td><input type="text" class="net163Input" name="loginName"></td>
+					<td colspan="2" align="center">&nbsp;</td>
 				</tr>
 				<tr>
-					<td align="right">password:</td><td><input type="password" class="net163Input" name="passWord"></td>
+					<td align="center"><button onclick="oauth('net163')">授权</button>&nbsp;&nbsp;<span class="closeSpan" onclick="$('.inputdiv').hide();$('.inputdiv .msg').empty()">close</span>&nbsp;&nbsp;<button onclick="savePin('net163')">授权完成</button></td>
 				</tr>
 				<tr>
-					<td colspan="2" align="center"><span class="closeSpan" onclick="$('.inputdiv').hide()">close</span>&nbsp;<button onclick="save('net163')">save</button></td>
+					<td colspan="2" align="center">&nbsp;</td>
+				</tr>
+			</table>
+		</div>
+		<div class="inputdiv qqDiv">
+			<table>
+				<tr>
+					<td align="left" colspan="2" class="serv-name">QQ微博&nbsp;<span class="msg"></span></td>
+				</tr>
+				<tr style="line-height: 20px;">
+					<td align="center">
+						点击"授权"按钮进行授权，授权完成后，请回到本页面，输入授权码，再点击"授权完成"按钮即可.
+						<br/>
+						<span style="color:red">（如果授权后看不到授权码，请在浏览器中退出登陆http://t.qq.com，然后再重新授权）</span>
+					</td>
+				</tr>
+				<tr>
+					<td colspan="2" align="center"><input type="text" name="pin"></td>
+				</tr>
+				<tr>
+					<td align="center"><button onclick="oauth('qq')">授权</button>&nbsp;&nbsp;<span class="closeSpan" onclick="$('.inputdiv').hide();$('.inputdiv .msg').empty()">close</span>&nbsp;&nbsp;<button onclick="savePin('qq')">授权完成</button></td>
+				</tr>
+				<tr>
+					<td colspan="2" align="center">&nbsp;</td>
 				</tr>
 			</table>
 		</div>

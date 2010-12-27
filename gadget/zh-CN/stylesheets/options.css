@@ -70,4 +70,10 @@ body {
 	text-decoration: underline;
 	font-style: italic;
 }
-
+.serv-name .msg{
+	clear: both;
+	font-size: 12px;
+	text-decoration: none;
+	font-style: normal;
+	color: red;
+}

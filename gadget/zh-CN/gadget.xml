@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <gadget>
   <name>分享吧</name>
-  <version><!--_locComment_text="{Locked}"-->1.0.0.0</version>
+  <version><!--_locComment_text="{Locked}"-->1.1.0.0</version>
   <author name="bokix">
     <info url="http://t.sina.com.cn/bokix" text="http://t.sina.com.cn/bokix"/>
     <logo src="icon.png"/>
