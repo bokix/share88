@@ -237,7 +237,7 @@ function shortenUrlByIsgd(url) {
 				type : "GET",
 				url : u,
 				async : false,
-				cache : false,
+				//cache : false,
 				// data:{i:Math.random()},
 				success : function(data, textStatus) {
 					response = {
@@ -264,7 +264,7 @@ function shortenUrlByAacx(url) {
 				type : "GET",
 				url : u,
 				async : false,
-				cache : false,
+				//cache : false,
 				// data:{i:Math.random()},
 				success : function(data, textStatus) {
 					response = {
