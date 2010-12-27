@@ -1,143 +1,165 @@
 ﻿﻿<html>
 	<head> 
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /> 
-		<link rel="Stylesheet" type="text/css" href="jquery/css/gray/jquery-ui-1.8.custom.css">	
 		<link rel="stylesheet" type="text/css" href="stylesheets/options.css">
 
 		<script type="text/javascript" src="jquery/js/jquery-1.4.2.min.js"></script>
-		<script type="text/javascript" src="jquery/js/jquery-ui-1.8.custom.min.js"></script>
-		
 		<script type="text/javascript" src="scripts/lib/base64.js"></script>
+		<script type="text/javascript" src="scripts/lib/sha1.js"></script>
+		<script type="text/javascript" src="scripts/lib/oauth.js"></script>
 		
-		<script type="text/javascript" src="scripts/chrome_ex_oauthsimple.js"></script>
 		<script type="text/javascript" src="scripts/util.js"></script>
 		<script type="text/javascript" src="scripts/Result.js"></script>
-		<script type="text/javascript" src="scripts/options.js"></script>
 		<script type="text/javascript" src="scripts/Net163Api.js"></script>
 		<script type="text/javascript" src="scripts/QQApi.js"></script>
+		<script type="text/javascript" src="scripts/options.js"></script>
 	</head> 
 
-	<body onload="onLoadOptionPage();"> 
-		<div class="div-main"> 
-			<div class="div-title"> 
-				设置
-			</div> 
-			<div id="mainTabs" fit="true">
-				<ul>
-					<li><a href="#tabs-1" class="tabs-title">sina</a></li>
-					<li><a href="#tabs-2" class="tabs-title">twitter</a></li>
-					<li><a href="#tabs-3" class="tabs-title">follow5</a></li>
-					<li><a href="#tabs-4" class="tabs-title">sohu</a></li>
-					<li><a href="#tabs-5" class="tabs-title">163</a></li>
-					<li><a href="#tabs-6" class="tabs-title">qq</a></li>
-					<li><a href="#tabs-7" class="tabs-title">帮助</a></li>
-				</ul>
-				<div id="tabs-1" class="tabs-page sina">
-					<table cellspacing="3" cellpadding="2"> 
-						<tr>
-							<td class="align-right">登陆名</td>
-							<td class="align-left"><input type="text" name="loginName"/></td>
-						</tr>
-						<tr>
-							<td class="align-right">登陆密码 </td>
-							<td class="align-left"><input type="password" name="passWord"/></td>
-						</tr>
-						<tr>
-							<td class="align-center" colspan="2"><a href="#" class="" onclick="save('sina');">保存</a></td>
-						</tr>
-					</table> 
-				</div>
-				<div id="tabs-2" class="tabs-page twitter">
-					<table cellspacing="3" cellpadding="2"> 
-						<tr>
-							<td class="align-right">登陆名</td>
-							<td class="align-left"><input type="text" name="loginName"/></td>
-						</tr>
-						<tr>
-							<td class="align-right">登陆密码 </td>
-							<td class="align-left"><input type="password" name="passWord"/></td>
-						</tr>
-						<tr>
-							<td class="align-right">API</td>
-							<td class="align-left"><input type="text" name="proxy" /></td>
-						</tr>
-						<tr>
-							<td class="align-center" colspan="2"><a href="#" onclick="save('twitter');">保存</a></td>
-						</tr>
-					</table> 
-				</div>
-				<div id="tabs-3" class="tabs-page follow5">
-					<table cellspacing="3" cellpadding="2"> 
-						<tr>
-							<td class="align-right">登陆名</td>
-							<td class="align-left"><input type="text" name="loginName"/></td>
-						</tr>
-						<tr>
-							<td class="align-right">登陆密码 </td>
-							<td class="align-left"><input type="password" name="passWord"/></td>
-						</tr>
-						<tr>
-							<td class="align-center" colspan="2"><a href="#" onclick="save('follow5');">保存</a></td>
-						</tr>
-					</table> 
-				</div>
-				<div id="tabs-4" class="tabs-page sohu">
-					<table cellspacing="3" cellpadding="2"> 
-						<tr>
-							<td class="align-right">登陆名</td>
-							<td class="align-left"><input type="text" name="loginName"/></td>
-						</tr>
-						<tr>
-							<td class="align-right">登陆密码 </td>
-							<td class="align-left"><input type="password" name="passWord"/></td>
-						</tr>
-						<tr>
-							<td class="align-center" colspan="2"><a href="#" onclick="save('sohu');">保存</a></td>
-						</tr>
-					</table> 
-				</div>
-				<div id="tabs-5" class="tabs-page net163">
-					<table cellspacing="3" cellpadding="2"> 
-						<tr>
-							<td class="align-right"></td>
-							<td class="align-left"><a href="#" onclick="oauth('net163')">getRequestToken</a></td>
-						</tr>
-						<tr>
-							<td class="align-right"></td>
-							<td class="align-left"><a href="#" onclick="savePin('net163')">我已授权</a></td>
-						</tr>
-					</table> 
-				</div>
-				<div id="tabs-6" class="tabs-page qq">
-					<table cellspacing="3" cellpadding="2"> 
-						<tr>
-							<td class="align-right"></td>
-							<td class="align-left"><a href="#" onclick="oauth('qq')">getRequestToken</a></td>
-						</tr>
-						<tr>
-							<td class="align-right"><input type="text" name="pin"></td>
-							<td class="align-left"><a href="#" onclick="savePin('qq')">我已授权</a><a href="#" onclick="testMsg('qq')">testmsg</a><a href="#" onclick="getUserInfo('qq')">getUserInfo</a></td>
-						</tr>
-					</table> 
-				</div>
-				<div id="tabs-7" class="tabs-page">
-					<div style="font-size: 10px;">
-					<p>你可以分别绑定自己的网易微博，新浪微博，twitter（如果你有api请自行填写正确，否则无法发送至twitter），sohu微博等，然后当你浏览网页的时候，针对网页中选中的文字，图片，链接，甚至整个页面都可以通过
-					鼠标右键快速的分享至你绑定的微博。
-					</p>
-					<p>
-					发送过程中，浏览器上分享吧的图标会显示黄色的进度，全部发送完成后颜色会变成绿色，如果显示：2/3，表示你绑定了3个微博，但是发送成功了2个。
-					</p>
-					<p>
-					谢谢大家的使用，你可以在新浪微博上给我发送消息：http://t.sina.com.cn/bokix
-					</p>
-					</div>
-				</div>
-			</div>
-			<div class="alreadyServices">
-				<ul>
-				</ul>
-			</div>
-		</div> 
+	<body onload="onLoadOptionPage()"> 
+		<div class="bindRow bind-twitter-row" title="twitter">
+			<img src="icons/twitter24.gif" class="bind-img" title="twitter"></img>
+			<div class="bind-user-name"></div>
+			<div class="bind-action" onclick="showInputDiv('twitter')">绑定</div>
+			<div class="bind-remove" onclick="remove('twitter')">remove</div>
+		</div>
+		<div class="bindRow bind-follow5-row" title="follow5">
+			<img src="icons/follow5.png" class="bind-img" title="follow5"></img>
+			<div class="bind-user-name"></div>
+			<div class="bind-action" onclick="showInputDiv('follow5')">绑定</div>
+			<div class="bind-remove" onclick="remove('follow5')">remove</div>
+		</div>
+		<div class="bindRow bind-sina-row"  title="新浪微博">
+			<img src="icons/sina24.png" class="bind-img" title="新浪微博"></img>
+			<div class="bind-user-name"></div>
+			<div class="bind-action" onclick="showInputDiv('sina')">绑定</div>
+			<div class="bind-remove" onclick="remove('sina')">remove</div>
+		</div>
+		<div class="bindRow bind-sohu-row" title="搜狐微博">
+			<img src="icons/sohu24.png" class="bind-img" title="搜狐微博"></img>
+			<div class="bind-user-name"></div>
+			<div class="bind-action" onclick="showInputDiv('sohu')">绑定</div>
+			<div class="bind-remove" onclick="remove('sohu')">remove</div>
+		</div>
+		<div class="bindRow bind-net163-row" title="网易微博">
+			<img src="icons/163-32.png" class="bind-img" title="网易微博"></img>
+			<div class="bind-user-name"></div>
+			<div class="bind-action" onclick="showInputDiv('net163')">绑定</div>
+			<div class="bind-remove" onclick="remove('net163')">remove</div>
+		</div>
+		<div class="bindRow bind-qq-row" title="腾讯微博">
+			<img src="icons/qq-24.png" class="bind-img" title="QQ微博"></img>
+			<div class="bind-user-name"></div>
+			<div class="bind-action" onclick="showInputDiv('qq')">绑定</div>
+			<div class="bind-remove" onclick="remove('qq')">remove</div>
+		</div>
+		<div class="inputdiv sinaDiv">
+			<table>
+				<tr>
+					<td align="left" colspan="2" class="serv-name">新浪微博</td>
+				</tr>
+				<tr>
+					<td align="right">name:</td><td><input type="text" class="sinaInput" name="loginName"></td>
+				</tr>
+				<tr>
+					<td align="right">password:</td><td><input type="password"" class="sinaInput" name="passWord"></td>
+				</tr>
+				<tr>
+					<td colspan="2" align="center"><span class="closeSpan" onclick="$('.inputdiv').hide()">close</span>&nbsp;<button onclick="save('sina')">save</button></td>
+				</tr>
+			</table>
+		</div>
+		<div class="inputdiv twitterDiv">
+			<table>
+				<tr>
+					<td align="left" colspan="2" class="serv-name">twitter</td>
+				</tr>
+				<tr>
+					<td align="right">name:</td><td><input type="text" class="twitterInput" name="loginName"></td>
+				</tr>
+				<tr>
+					<td align="right">password:</td><td><input type="password" class="twitterInput" name="passWord"></td>
+				</tr>
+				<tr>
+					<td align="right">API:</td><td><input type="text" class="twitterInput" name="proxy"></td>
+				</tr>
+				<tr>
+					<td colspan="2" align="center"><span class="closeSpan" onclick="$('.inputdiv').hide()">close</span>&nbsp;<button onclick="save('twitter')">save</button></td>
+				</tr>
+			</table>
+		</div>
+		<div class="inputdiv sohuDiv">
+			<table>
+				<tr>
+					<td align="left" colspan="2" class="serv-name">搜狐微博</td>
+				</tr>
+				<tr>
+					<td align="right">name:</td><td><input type="text" class="sohuInput" name="loginName"></td>
+				</tr>
+				<tr>
+					<td align="right">password:</td><td><input type="password" class="sohuInput" name="passWord"></td>
+				</tr>
+				<tr>
+					<td colspan="2" align="center"><span class="closeSpan" onclick="$('.inputdiv').hide()">close</span>&nbsp;<button onclick="save('sohu')">save</button></td>
+				</tr>
+			</table>
+		</div>
+		<div class="inputdiv follow5Div">
+			<table>
+				<tr>
+					<td align="left" colspan="2" class="serv-name">follow5</td>
+				</tr>
+				<tr>
+					<td align="right">name:</td><td><input type="text" class="follow5Input" name="loginName"></td>
+				</tr>
+				<tr>
+					<td align="right">password:</td><td><input type="password" class="follow5Input" name="passWord"></td>
+				</tr>
+				<tr>
+					<td colspan="2" align="center"><span class="closeSpan" onclick="$('.inputdiv').hide()">close</span>&nbsp;<button onclick="save('follow5')">save</button></td>
+				</tr>
+			</table>
+		</div>
+		<div class="inputdiv net163Div">
+			<table>
+				<tr>
+					<td align="left" colspan="2" class="serv-name">网易微博&nbsp;<span class="msg"></span></td>
+				</tr>
+				<tr style="line-height: 20px;">
+					<td align="center" style="font-size:70%;">点击"授权"按钮进行授权，授权完成后，请回到本页面，再点击"授权完成"按钮即可</td>
+				</tr>
+				<tr>
+					<td colspan="2" align="center">&nbsp;</td>
+				</tr>
+				<tr>
+					<td align="center"><button onclick="oauth('net163')">授权</button>&nbsp;&nbsp;<span class="closeSpan" onclick="$('.inputdiv').hide();$('.inputdiv .msg').empty()">close</span>&nbsp;&nbsp;<button onclick="savePin('net163')">授权完成</button></td>
+				</tr>
+				<tr>
+					<td colspan="2" align="center">&nbsp;</td>
+				</tr>
+			</table>
+		</div>
+		<div class="inputdiv qqDiv">
+			<table>
+				<tr>
+					<td align="left" colspan="2" class="serv-name">QQ微博&nbsp;<span class="msg"></span></td>
+				</tr>
+				<tr style="line-height: 20px;">
+					<td align="center" style="font-size:70%;">
+						点击"授权"按钮进行授权，授权完成后，请回到本页面，输入授权码，再点击"授权完成"按钮即可.
+						<br/>
+						<span style="color:red">（如果授权后看不到授权码，请在浏览器中退出登陆http://t.qq.com，然后再重新授权）</span>
+					</td>
+				</tr>
+				<tr>
+					<td colspan="2" align="center"><input type="text" name="pin"></td>
+				</tr>
+				<tr>
+					<td align="center"><button onclick="oauth('qq')">授权</button>&nbsp;&nbsp;<span class="closeSpan" onclick="$('.inputdiv').hide();$('.inputdiv .msg').empty()">close</span>&nbsp;&nbsp;<button onclick="savePin('qq')">授权完成</button></td>
+				</tr>
+				<tr>
+					<td colspan="2" align="center">&nbsp;</td>
+				</tr>
+			</table>
+		</div>
 	</body> 
 </html>
