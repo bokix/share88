@@ -5,153 +5,176 @@
 
 (function($) {
 	QQApi = {
-		callAjax : function(opt) {
-			var p = {
-				timeout : 30 * 1000,
-				type : "POST",
-				async : true
-			};
-
-			var prop = {};
-			$.extend(prop, p, opt);
-			$.ajax(prop);
-		},
 		update : function(msg, tokenObj, callback) {
-			var o = {
-				path : apiURL.update,
-				action : 'post',
-				parameters : {
-					status : msg
-				},
-				signatures : {
-					consumer_key : consumer_key,
-					shared_secret : consumer_secret,
-					oauth_token : tokenObj.oauth_token,
-					oauth_secret : tokenObj.oauth_token_secret
-				}
+			log('qq update...');
+
+			var accessor = {
+				consumerSecret : consumer_secret,
+				tokenSecret : tokenObj.oauth_token_secret
 			};
 
-			var oauthObject = OAuthSimple().sign(o);
+			var para = {
+				oauth_consumer_key : consumer_key,
+				oauth_token : tokenObj.oauth_token,
+				oauth_version : "1.0",
+				content : msg,
+				format : "json"
 
-			var url = oauthObject.signed_url;
+			};
 
-			$.post(url, null, function(d) {
-						log('post2 callback.');
-						log(d);
+			var message = {
+				action : apiURL.update,
+				method : "POST",
+				parameters : para
+			};
+
+			OAuth.setTimestampAndNonce(message);
+			OAuth.SignatureMethod.sign(message, accessor);
+
+			$.post(message.action, message.parameters, function(data) {
+						log("update post callback.");
+						log(data);
+						var r = JSON.parse(data);
 						var result = new Result();
-						result.srvName = 'qq';
-						result.ok = true;
-
+						result.srvName = "qq";
+						result.ok = r.ret == 0;
+						result.data = r;
+						result.responseText = r.msg || r.content;
 						callback(result);
 					});
 		},
 
 		getUserInfo : function(tokenObj, callback) {
-			var o = {
-				path : apiURL.userInfo,
-				parameters : {
-					"format" : "json",
-					"oauth_token" : tokenObj.oauth_token,
-					"oauth_version" : "1.0"
-				},
-				signatures : {
-					consumer_key : consumer_key,
-					shared_secret : consumer_secret,
-					oauth_secret : tokenObj.oauth_token_secret
-				}
+			log('get user info.');
+
+			var accessor = {
+				consumerSecret : consumer_secret,
+				tokenSecret : tokenObj.oauth_token_secret
 			};
-			log("obj:" + JSON.stringify(o));
 
-			var oauthObject = OAuthSimple().sign(o);
+			var para = {
+				oauth_consumer_key : consumer_key,
+				oauth_token : tokenObj.oauth_token,
+				oauth_version : "1.0",
+				format : "json"
+			};
 
-			var url = oauthObject.signed_url;
+			var message = {
+				action : apiURL.userInfo,
+				method : "POST",
+				parameters : para
+			};
 
-			log("url:" + url);
-			$.get(url, null, function(d) {
+			OAuth.setTimestampAndNonce(message);
+			OAuth.SignatureMethod.sign(message, accessor);
+
+			$.get(message.action, message.parameters, function(data) {
+						log("getUserInfo callback.");
+						log(data);
+						var r = JSON.parse(data);
 						var result = new Result();
 						result.srvName = "qq";
-						result.ok = true;
-						result.data = d;
+						result.ok = r.ret == 0;
+						result.data = r;
+						result.responseText = r.msg || r.content;
 						callback(result);
-
 					});
 		},
-		oauth : function(callback) {
-			this.getRequestToken(callback);
-		},
 		getRequestToken : function(callback) {
-			log('get request token...');
-
-			var config = {
-				path : apiURL.request_token,
-				parameters : {
-					oauth_callback : 'null',
-					oauth_version : "1.0"
-				},
-				signatures : {
-					api_key : consumer_key,
-					shared_secret : consumer_secret
-				}
+			var accessor = {
+				consumerSecret : consumer_secret
 			};
-			var oauthObject = OAuthSimple().sign(config);
-
-			var signedUrl = oauthObject.signed_url;
-
-			log(signedUrl);
-
-			var opt = {
-				url : signedUrl,
-				type : "GET",
-				success : function(data, textStatus) {
-					var o = Util.parseResponseText(data);
-					QQApi.authenticate(o.oauth_token, o.oauth_token_secret,
-							callback);
-				},
-				error : function(xhr, textStatus, errorThrown) {
-					var result = new Result();
-					result.srvName = 'qq';
-					result.ok = false;
-					try {
-						result.responseText = textStatus;
-						if (xhr.responseText) {
-							result.data = JSON.parse(xhr.responseText);
-							result.responseText = result.data.error;
-						}
-					} catch (err) {
-						result.responseText = "parse error.";
-					}
-					callback(result);
-				}
+			var para = {
+				oauth_consumer_key : consumer_key,
+				oauth_version : "1.0",
+				oauth_callback : "null"
 			};
 
-			this.callAjax(opt);
+			var message = {
+				action : apiURL.request_token,
+				method : "get",
+				parameters : para
+			};
+			OAuth.setTimestampAndNonce(message);
+			OAuth.SignatureMethod.sign(message, accessor);
+
+			$.get(message.action, message.parameters, function(data) {
+				log('get request token call back.');
+				log(data);
+				var o = Util.parseResponseText(data);
+				callback(o);
+					// QQApi.authenticate(o.oauth_token, o.oauth_token_secret,
+					// callback);
+				});
 		},
-		authenticate : function(oauth_token, oauth_token_secret, callback) {
+		authenticate : function(callback) {
+			log('authenticate....');
+			this.getRequestToken(function(requestToken) {
+						var accessor = {
+							consumerSecret : consumer_secret,
+							tokenSecret : requestToken.oauth_token_secret
+						};
+						var para = {
+							oauth_consumer_key : consumer_key,
+							oauth_token : requestToken.oauth_token,
+							oauth_version : "1.0"
+						};
+
+						var message = {
+							action : apiURL.authenticate,
+							method : "get",
+							parameters : para
+						};
+						OAuth.setTimestampAndNonce(message);
+						OAuth.SignatureMethod.sign(message, accessor);
+						var url = OAuth.addToURL(apiURL.authenticate,
+								message.parameters);
+
+						log(url);
+
+						tmpToken.oauth_token = requestToken.oauth_token;
+						tmpToken.oauth_token_secret = requestToken.oauth_token_secret;
+						
+						var result = new Result();
+						result.ok = true;
+						result.srvName = "qq";
+						callback(result);
+						
+						chrome.tabs.create({
+									url : url
+								});
+					});
+
+		},
+		authenticate2 : function(oauth_token, oauth_token_secret, callback) {
 			log('authenticate....');
 
-			var config = {
-				path : apiURL.authenticate,
-				parameters : {
-					oauth_callback : "null"
-				},
-				signatures : {
-					api_key : consumer_key,
-					shared_secret : consumer_secret,
-					oauth_token : oauth_token,
-					oauth_secret : oauth_token_secret
-				}
+			var accessor = {
+				consumerSecret : consumer_secret,
+				tokenSecret : oauth_token_secret
+			};
+			var para = {
+				oauth_consumer_key : consumer_key,
+				oauth_token : oauth_token,
+				oauth_version : "1.0"
 			};
 
-			log("config:" + JSON.stringify(config));
+			var message = {
+				action : apiURL.authenticate,
+				method : "get",
+				parameters : para
+			};
+			OAuth.setTimestampAndNonce(message);
+			OAuth.SignatureMethod.sign(message, accessor);
+			var url = OAuth.addToURL(apiURL.authenticate, message.parameters);
 
-			var oauthObject = OAuthSimple().sign(config);
-
-			var signedUrl = oauthObject.signed_url;
+			log(url);
 
 			tmpToken.oauth_token = oauth_token;
 			tmpToken.oauth_token_secret = oauth_token_secret;
+
 			chrome.tabs.create({
-						url : signedUrl
+						url : url
 					});
 
 		},
@@ -159,29 +182,28 @@
 			log(JSON.stringify(tmpToken));
 			log('get access token.');
 
-			var config = {
-				path : apiURL.access_token,
-				parameters : {
-					"oauth_token" : tmpToken.oauth_token,
-					"oauth_version" : "1.0",
-					"oauth_verifier" : pin
-				},
-				signatures : {
-					consumer_key : consumer_key,
-					shared_secret : consumer_secret,
-					oauth_secret : tmpToken.oauth_token_secret
-				}
+			var accessor = {
+				consumerSecret : consumer_secret,
+				tokenSecret : tmpToken.oauth_token_secret
+			};
+			var para = {
+				oauth_consumer_key : consumer_key,
+				oauth_token : tmpToken.oauth_token,
+				oauth_version : "1.0",
+				oauth_verifier : pin
 			};
 
-			log("config:" + JSON.stringify(config));
+			var message = {
+				action : apiURL.access_token,
+				method : "GET",
+				parameters : para
+			};
+			OAuth.setTimestampAndNonce(message);
+			OAuth.SignatureMethod.sign(message, accessor);
 
-			var oauthObject = OAuthSimple().sign(config);
+			log(message);
 
-			var signedUrl = oauthObject.signed_url;
-
-			log(signedUrl);
-
-			$.get(signedUrl, null, function(data) {
+			$.get(message.action, message.parameters, function(data) {
 						log('get access token call back.');
 						log(data);
 
@@ -191,6 +213,7 @@
 						result.data = Util.parseResponseText(data);
 						callback(result);
 					});
+
 		}
 
 	};
@@ -201,8 +224,8 @@
 
 	var consumer_key = "8c0551da0a0b4e1589eca6d3442fd5d8";
 	var consumer_secret = "95d1bbdf2281950ba66900fb053a180f";
-	// var domain_qq = 'http://t.qq.com';
-	var domain_qq = 'http://localhost:8080/demo/test.jsp';
+
+	var domain_qq = 'http://t.qq.com';
 
 	var api_domain_https = 'https://open.t.qq.com';
 	var api_domain_http = 'http://open.t.qq.com';

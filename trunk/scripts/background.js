@@ -1,6 +1,8 @@
 ﻿/**
  * @include "Result.js"
  * @include "MsgObj.js"
+ * @include "util.js"
+ * 
  */
 
 
@@ -193,8 +195,12 @@ function sendMsg(msgObj) {
 
 	allServicesLength = sumServ;
 
+	log('allServices: ' + JSON.stringify(allServices));
+	
 	for (var service in allServices) {
 		if (allServices[service]) {
+			log('service:' + service);
+			
 			switch (service) {
 				case "sina" :
 					SinaApi.update(getMeg4send(msgObj, "sina"), sendCallback);
@@ -211,7 +217,13 @@ function sendMsg(msgObj) {
 					SohuApi.update(getMeg4send(msgObj, "sohu"), sendCallback);
 					break;
 				case "net163" :
-					Net163Api.update(getMeg4send(msgObj, "net163"),
+					var token = Util.getObjData("accessToken")['net163'];
+					Net163Api.update(getMeg4send(msgObj, "net163"),token,
+							sendCallback);
+					break;
+				case "qq" :
+					var token = Util.getObjData("accessToken")['qq'];
+					QQApi.update(getMeg4send(msgObj, "qq"),token,
 							sendCallback);
 					break;
 			}
