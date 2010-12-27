@@ -1,32 +1,118 @@
 ﻿/**
  * @include "util.js"
  */
-/**
- * var oauth=ChromeExOAuth.initBackgroundPage({ 'request_url':
- * "http://api.t.163.com/oauth/request_token", 'authorize_url':
- * "http://api.t.163.com/oauth/authenticate", 'access_url':
- * "http://api.t.163.com/oauth/access_token", 'consumer_key':"nvEarTz6ESkybgKq",
- * 'consumer_secret': "LKDLe4P6G6GulqNOHwwvRdz3LopqG3Vj", 'scope':'',
- * 'app_name': "" });
- */
-function getOauth(servType) {
-	if (!oauth.hasToken()) {
-		oauth.authorize(function() {
-					alert('oauth 163 ok.');
-				});
-	} else {
-		alert('already oauth.' + oauth.getToken());
+
+function oauth(type) {
+	switch (type) {
+		case 'net163' :
+			oauthStart(".net163Div .msg");
+			Net163Api.authenticate(function(/* Result */result) {
+						oauthEnd(".net163Div .msg");
+						if (!result.ok) {
+							$(".net163Div .msg").empty()
+									.html(result.responseText);
+						}
+					});
+			break;
+		case 'qq' :
+			oauthStart(".qqDiv .msg");
+			QQApi.authenticate(function(/* Result */result) {
+						oauthEnd(".qqDiv .msg");
+						if (!result.ok) {
+							$(".qqDiv .msg").empty().html(result.responseText);
+						}
+
+					});
+			break;
+		default :
+			break;
 	}
+}
+function savePin(type) {
+	switch (type) {
+		case 'net163' :
+			oauthStart(".net163Div .msg");
+			Net163Api.getAccessToken(function(/* Result */result) {
+						oauthEnd(".net163Div .msg");
+						if (!result.ok) {
+							$(".net163Div .msg").empty()
+									.html(result.responseText);
+						} else {
+							oauthCallBack(result);
+						}
+					});
+			break;
+		case 'qq' :
+			oauthStart(".qqDiv .msg");
+			var pin = $.trim($(".qqDiv input[name=pin]").val());
+
+			if (pin == "") {
+				oauthEnd(".qqDiv .msg");
+				$(".qqDiv .msg").empty().html("请输入授权码");
+				return false;
+			}
+			QQApi.getAccessToken($.trim(pin), function(/* Result */result) {
+						oauthEnd(".qqDiv .msg");
+						if (!result.ok) {
+							$(".qqDiv .msg").empty().html(result.responseText);
+						} else {
+							oauthCallBack(result);
+						}
+
+					});
+			break;
+	}
+}
+function oauthStart(className) {
+	var v = "<img src='../icons/ajax-loader.gif'></img>";
+	$(className).html(v);
+
+}
+function oauthEnd(className) {
+	$(className).empty();
+}
+
+function oauthCallBack(/* Result */r) {
+	log(r);
+	if (!r.ok) {
+		log('error.' + r.responseText);
+		return;
+	}
+	$('.inputdiv').hide();
+
+	var accessToken = Util.getObjData("accessToken") || {};
+	accessToken[r.srvName] = r.data;
+
+	log('accessToken:' + JSON.stringify(accessToken));
+
+	Util.saveData("accessToken", JSON.stringify(accessToken));
+
+	var allUserData = Util.getObjData("allUserData") || {};
+	allUserData[r.srvName] = {};
+	allUserData[r.srvName].loginName = r.data.name || "";
+
+	log("allUserData[" + r.srvName + "]:"
+			+ JSON.stringify(allUserData[r.srvName]));
+
+	Util.saveData("allUserData", JSON.stringify(allUserData));
+
+	save(r.srvName);
 }
 
 function showInputDiv(type) {
 	var c = "." + type + "Div";
 	$(c).show();
 	var vi = c + " input:first";
-	log("html:"+$(vi).length + "," + $(vi).attr("name") + ", " + $(vi).attr("className"));
 	$(vi).focus();
 }
-function save(type) {
+
+/**
+ * 不需要oauth验证的，保存页面form
+ * 
+ * @param {}
+ *            type
+ */
+function saveForm(type) {
 	$(".inputdiv").hide();
 	var inputClsKey = "." + type + "Input"; // like: ".sinaInput"
 	var allUserData = Util.getObjData("allUserData") || {};
@@ -34,14 +120,25 @@ function save(type) {
 	$(inputClsKey).each(function() {
 				allUserData[type][this.name] = this.value;
 			});
+
+	log('allUserData:' + JSON.stringify(allUserData));
+
 	Util.saveData("allUserData", JSON.stringify(allUserData));
 
+	save(type);
+}
+
+function save(type) {
+	log('save...');
+
 	var allServices = Util.getObjData("alreadyServices") || {};
-	if (!allServices[type]) {
-		allServices[type] = true;
-		showServices(type);
-		Util.saveData("alreadyServices", JSON.stringify(allServices));
-	}
+	allServices[type] = true;
+
+	log('alreadyServices:' + JSON.stringify(allServices));
+
+	Util.saveData("alreadyServices", JSON.stringify(allServices));
+
+	showServices(type);
 }
 function showServices(type) {
 	var allUserData = Util.getObjData("allUserData") || {};
@@ -72,13 +169,17 @@ function remove(type) {
 	// $(".alreadyServices").find("."+type).remove();
 	var allServices = Util.getObjData("alreadyServices") || {};
 	var allUserData = Util.getObjData("allUserData") || {};
+	var accessToken = Util.getObjData("accessToken") || {};
 
+	delete accessToken[type];
 	delete allServices[type];
 	delete allUserData[type];
 
+	Util.saveData("accessToken", JSON.stringify(accessToken));
 	Util.saveData("alreadyServices", JSON.stringify(allServices));
 	Util.saveData("allUserData", JSON.stringify(allUserData));
 
+	log("accessToken:" + JSON.stringify(accessToken));
 	log("allServices:" + JSON.stringify(allServices));
 	log("allUserData:" + JSON.stringify(allUserData));
 }

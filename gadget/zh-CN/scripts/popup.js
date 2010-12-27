@@ -129,7 +129,13 @@ function sendMsg() {
 					SohuApi.update(getMeg4send(msgObj, "sohu"), sendCallback);
 					break;
 				case "net163" :
-					Net163Api.update(getMeg4send(msgObj, "net163"),
+					var token = Util.getObjData("accessToken")['net163'];
+					Net163Api.update(getMeg4send(msgObj, "net163"),token,
+							sendCallback);
+					break;
+				case "qq" :
+					var token = Util.getObjData("accessToken")['qq'];
+					QQApi.update(getMeg4send(msgObj, "qq"),token,
 							sendCallback);
 					break;
 			}
@@ -171,7 +177,7 @@ function sendCallback(/* Result */result) {
 	}
 	setLogMsg(msg);
 	
-	if (doneServices.length == allServicesLength) { // all task done.
+	if (doneServices.length >= allServicesLength) { // all task done.
 		hideLoading();
 		delayClearMsg();
 	}

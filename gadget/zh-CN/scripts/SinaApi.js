@@ -62,5 +62,5 @@
 	
 	var log = function(msg){
 		System.Debug.outputString(msg);	
-	}
+	};
 })(jQuery);
