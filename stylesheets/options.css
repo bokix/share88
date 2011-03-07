@@ -78,3 +78,6 @@ body {
 	font-style: normal;
 	color: red;
 }
+.config_showTwitter{
+	display: none;	
+}

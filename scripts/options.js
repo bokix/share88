@@ -192,6 +192,9 @@ function onLoadOptionPage() {
 			showServices(i);
 		}
 	}
+	if(config_showTwitter){
+		$(".config_showTwitter").removeClass("config_showTwitter");
+	}
 }
 
 function log(obj) {
