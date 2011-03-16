@@ -1,1 +1,1 @@
-﻿config_showTwitter = false;
+﻿config_show_other = false;
