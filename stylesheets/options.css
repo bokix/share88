@@ -78,6 +78,6 @@ body {
 	font-style: normal;
 	color: red;
 }
-.config_showTwitter{
-	display: none;	
+.config_show_other{
+	visibility:hidden;	
 }

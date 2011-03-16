@@ -1,9 +1,9 @@
 {
    "description": {
-      "message": "share to your sns platform"
+      "message": "快速发送信息到微博。"
    },
    "extName": {
-      "message": "share now!"
+      "message": "分享吧"
    },
    "subTitleEdit": {
       "message": "edit & send"

@@ -192,8 +192,8 @@ function onLoadOptionPage() {
 			showServices(i);
 		}
 	}
-	if(config_showTwitter){
-		$(".config_showTwitter").removeClass("config_showTwitter");
+	if(config_show_other){
+		$(".config_show_other").removeClass("config_show_other");
 	}
 }
 
