@@ -4,50 +4,77 @@
  
 (function($) {
 	SinaApi = {
-		updateWithOauth:function (msg,headArr,callback){
-			var _data = {
-				status : msg,
-				source : consumer_key
-			};
-	
-			log("update with oauth...");
-			log("msg:"+msg);
-			
+		updateWithOauth:function (msg, tokenObj, callback){
+			log('updateWithOauth...');
 			var result = new Result();
 			result.srvName="sina";
-		
-			log('.....');
+			var accessor = {
+				consumerSecret : tokenObj.secret,
+				tokenSecret : tokenObj.oauth_token_secret
+			};
+
+			log('accessor:' + JSON.stringify(accessor));
 			
+			var para = {
+				oauth_consumer_key : tokenObj.key,
+				oauth_token : tokenObj.oauth_token,
+				oauth_version : "1.0",
+				//content : msg,
+				//format : "json",
+				status : msg
+				//,source : tokenObj.key
+			};
+
+			log('para:' + JSON.stringify(para));
+			
+			var message = {
+				action : sinaURL.update,
+				method : "POST",
+				parameters : para
+			};
+			
+			OAuth.setTimestampAndNonce(message);
+			OAuth.SignatureMethod.sign(message, accessor);
+			
+			log('message:' + JSON.stringify(message));
+
+			/**
+			$.post(message.action, message.parameters, function(data) {
+						log("update post callback.");
+						log(data);
+						var r = JSON.parse(data);
+						var result = new Result();
+						result.srvName = "sina";
+						result.ok = r.ret == 0;
+						result.data = r;
+						result.responseText = r.msg || r.content;
+						callback(result);
+					});
+					*/
 			$.ajax({
-						url : sinaURL.update,
+						url : message.action,
 						cache : false,
 						timeout : 30 * 1000,
 						type : "post",
-						data : _data,
+						data : message.parameters,
 						async : true,
 						dataType : 'json',
-						beforeSend : function(req) {
-							log('set header ' + headArr);
-							
-							//req.setRequestHeader('OAuth ', headArr);
-							req.setRequestHeader('Authorization', headArr);
-							/**
-							for(var h in headArr){
-								log(h + "-" + headArr[h]);
-								req.setRequestHeader(h, headArr[h]);
-							}
-							*/
-						},
 						success : function(data, textStatus) {
 							log('success.');
+							log(JSON.stringify(data));
+							log('success.textStatus:' + JSON.stringify(textStatus));
+							
 							result.ok = true;
-							result.data = data;
+							result.data = "success";// data;
 							result.responseText = textStatus;
 							
 							callback(result);
 						},
 						error : function(xhr, textStatus, errorThrown) {
 							log('error.');
+							log('xhr:' + JSON.stringify(xhr));
+							log('textStatus:' + JSON.stringify(textStatus));
+							log('errorThrown:' + JSON.stringify(errorThrown));
 							
 							result.ok = false;
 							try {
@@ -65,13 +92,16 @@
 		},
 		update : function(msg, callback) {
 			var _data = {
-				status : msg,
-				source : consumer_key
+				"status" : msg,
+				"source" : consumer_key
 			};
 			var user = Util.getObjData("allUserData")['sina'];
 	
 			var result = new Result();
 			result.srvName="sina";
+			log("--------------------------------");
+			log("send data:");
+			log(_data);
 		
 			$.ajax({
 						url : sinaURL.update,
@@ -108,222 +138,161 @@
 						}
 					});
 		},
-		
-		upload2:function(msg,picurl,callback){
-			var _data = {
-				status : msg,
-				source : consumer_key,
-				pic    : picurl
+		getRequestToken : function(callback) {
+			log('getRequestToken...');
+			var accessor = {
+				consumerSecret : tmpToken.secret
 			};
-			var e = '<input type="file" name="pic" value="e:\\user\\Desktop\\123.jpg">';
-			console.log('099999-----------------------');
+			var para = {
+				oauth_consumer_key : tmpToken.key
+				,oauth_version : "1.0"
+				//,oauth_callback : "http://localhost"
+			};
+
+			var message = {
+				action : sinaURL.request_token,
+				method : "get",
+				parameters : para
+			};
+			OAuth.setTimestampAndNonce(message);
+			OAuth.SignatureMethod.sign(message, accessor);
+
+			log(message);
 			
-			$(e).fileUpload({
-						url : sinaURL.upload,
-						cache : false,
-						timeout : 30 * 1000,
-						type : "post",
-						data : _data,
-						async : true,
-						dataType: 'json',
-						processData: false,
-						beforeSend : function(req) {
-							req.setRequestHeader('Authorization', Util
-											.makeBasicAuth(user.loginName,
-													user.passWord));
-						},
-						success : function(data, textStatus) {
-							console.log('success.............');
-							console.log(data);
-							console.log(textStatus);
-							
-							
-							result.ok = true;
-							result.data = data;
-							result.responseText = textStatus;
-							
-							callback(result);
-						},
-						error : function(xhr, textStatus, errorThrown) {
-							
-							console.log('error.............');
-							console.log(xhr);
-							console.log(textStatus);
-							
-							
-							result.ok = false;
-							try {
-								result.responseText = textStatus;
-								if(xhr.responseText){
-									result.data = JSON.parse(xhr.responseText);
-									result.responseText = result.data.error;
-								}
-							} catch (err) {
-								result.responseText = "parse error.";
-							}
-							callback(result);
-						}
-					});
-			
+			$.get(message.action, message.parameters, function(data) {
+				log('get request token call back.');
+				log(data);
+				var o = Util.parseResponseText(data);
+				callback(o);
+				});
+			/**
+			$.post(message.action, message.parameters, function(data) {
+				log('post request token call back.');
+				log(data);
+				var o = Util.parseResponseText(data);
+				callback(o);
+					// QQApi.authenticate(o.oauth_token, o.oauth_token_secret,
+					// callback);
+				});
+			*/
 		},
-		upload : function(msg,picurl, callback) {
-			var _data = {
-				status : msg,
-				source : consumer_key,
-				pic    : picurl
-			};
-			var user = Util.getObjData("allUserData")['sina'];
-	
-			var result = new Result();
-			result.srvName="sina";
+		authenticate : function(_selfKey,_selfSecret,callback) {
+			log('authenticate....');
+			log('_selfKey:' + _selfKey);
+			log('_selfSecret:' + _selfSecret);
 			
-			var filename = "E:\\user\\Desktop\\123.jpg";
-			var boundary = '----multipartformboundary' + (new Date).getTime();
-    var dashdash = '--';
-    var crlf     = '\r\n';
+			
+			if(_selfKey && _selfKey!=""){
+				tmpToken.key = _selfKey;
+			}
+			if(_selfSecret && _selfSecret!=""){
+				tmpToken.secret = _selfSecret;
+			}
+			
+			log('tmpToken:' + JSON.stringify(tmpToken));
+			
+			this.getRequestToken(function(requestToken) {
+						log('start authenticate...');
+						
+						var accessor = {
+							consumerSecret : tmpToken.secret,
+							tokenSecret : requestToken.oauth_token_secret
+						};
+						var para = {
+							oauth_consumer_key : tmpToken.key,
+							oauth_token : requestToken.oauth_token,
+							oauth_version : "1.0"
+						};
 
-    /* Build RFC2388 string. */
-    var builder = '';
+						var message = {
+							action : sinaURL.authenticate,
+							method : "get",
+							parameters : para
+						};
+						OAuth.setTimestampAndNonce(message);
+						OAuth.SignatureMethod.sign(message, accessor);
+						var url = OAuth.addToURL(sinaURL.authenticate,
+								message.parameters);
 
-    builder += dashdash;
-    builder += boundary;
-    builder += crlf;
+						log(url);
 
-    /* Generate headers. [SOURCE KEY] */            
-    builder += 'Content-Disposition: form-data; name="source"';
-    builder += crlf;
-    builder += crlf; 
-
-    /* Append form data. */
-    builder += consumer_key;
-    builder += crlf;
-
-    /* Write boundary. */
-    builder += dashdash;
-    builder += boundary;
-    builder += crlf;
-
-    /* Generate headers. [STATUS] */            
-    builder += 'Content-Disposition: form-data; name="status"';
-    builder += crlf;
-    builder += crlf; 
-
-    /* Append form data. */
-    builder += msg;
-    builder += crlf;
-
-    /* Write boundary. */
-    builder += dashdash;
-    builder += boundary;
-    builder += crlf;
-
-    /* Generate headers. [PIC] */            
-    builder += 'Content-Disposition: form-data; name="pic"';
-      builder += '; filename="123.jpg"';
-    builder += crlf;
-
-    builder += 'Content-Type: image/jpg';
-    builder += crlf;
-    builder += crlf; 
-
-    var reader = new FileReader();
-    reader.onload = function(){};
-    var v = reader.readAsBinaryString(filename);
-    /* Append binary data.*/
-    builder += v;//file.getAsBinary();
-    builder += crlf;
-	
-	console.log('start..');
-	
-	
-	//var reader = new FileReader();
-   // var fb = reader.readAsBinaryString(filename);
-//    var b = false;
-//    reader.onloadend = function (e){
-//    	
-//    	b = true;
-//    };
-//    while(!b){
-//    	//
-//    	console.log('....');
-//    }
-    //console.log('ok.'+fb);
-    
-    var bb = new BlobBuilder(); //NOTE
-    bb.append(builder);
-    bb.append(v);
-    builder = crlf;
-    
-    /* Mark end of the request.*/ 
-    builder += dashdash;
-    builder += boundary;
-    builder += dashdash;
-    builder += crlf;
-
-    bb.append(builder);
-    
-		    
-		    
-		    //console.log(builder);
-    
-			$.ajax({
-						url : sinaURL.upload,
-						cache : false,
-						timeout : 30 * 1000,
-						type : "post",
-						data : bb.getBlob(),
-						async : true,
-						dataType: 'text',
-						contentType: 'multipart/form-data; boundary=' + boundary,
-						processData: false,
-						beforeSend : function(req) {
-							req.setRequestHeader('Authorization', Util
-											.makeBasicAuth(user.loginName,
-													user.passWord));
-						},
-						success : function(data, textStatus) {
-							console.log('success.............');
-							console.log(data);
-							console.log(textStatus);
-							
-							
-							result.ok = true;
-							result.data = data;
-							result.responseText = textStatus;
-							
-							callback(result);
-						},
-						error : function(xhr, textStatus, errorThrown) {
-							
-							console.log('error.............');
-							console.log(xhr);
-							console.log(textStatus);
-							
-							
-							result.ok = false;
-							try {
-								result.responseText = textStatus;
-								if(xhr.responseText){
-									result.data = JSON.parse(xhr.responseText);
-									result.responseText = result.data.error;
-								}
-							} catch (err) {
-								result.responseText = "parse error.";
-							}
-							callback(result);
-						}
+						tmpToken.oauth_token = requestToken.oauth_token;
+						tmpToken.oauth_token_secret = requestToken.oauth_token_secret;
+						
+						var result = new Result();
+						result.ok = true;
+						result.srvName = "sina";
+						callback(result);
+						
+						chrome.tabs.create({
+									url : url
+								});
 					});
+
+		},
+		getAccessToken : function(pin, callback) {
+			log(JSON.stringify(tmpToken));
+			log('get access token.');
+
+			var accessor = {
+				consumerSecret : tmpToken.secret,
+				tokenSecret : tmpToken.oauth_token_secret
+			};
+			var para = {
+				oauth_consumer_key : tmpToken.key,
+				oauth_token : tmpToken.oauth_token,
+				oauth_version : "1.0",
+				oauth_verifier : pin
+			};
+
+			var message = {
+				action : sinaURL.access_token,
+				method : "GET",
+				parameters : para
+			};
+			OAuth.setTimestampAndNonce(message);
+			OAuth.SignatureMethod.sign(message, accessor);
+
+			log(message);
+
+			$.get(message.action, message.parameters, function(data) {
+						log('get access token call back.');
+						log(data);
+
+						var result = new Result();
+						result.ok = true;
+						result.srvName = "sina";
+						result.data = Util.parseResponseText(data);
+						result.data['key'] = tmpToken.key;
+						result.data['secret'] = tmpToken.secret;
+						callback(result);
+					});
+
 		}
 	};
 	
 	var log = function(m){
 		chrome.extension.getBackgroundPage().log(m);
 	};
+	
+	//ø≤À˛¿≠
+	/**
 	var consumer_key = "1223946471";
 	var consumer_secret = "6206f373acd22f67f54535553d560fdc";
+	*/
+	
+	//≈Ó¿≥œ…µ∫
+	var consumer_key = "2563927173";
+	var consumer_secret = "503bcd36b9677ce50b3a311740e7c0c6";
+	
 	var domain_sina = 'http://t.sina.com.cn';
 	var api_domain_sina = 'http://api.t.sina.com.cn';
-	
+	var tmpToken = {
+		oauth_token : "",
+		oauth_token_secret : "",
+		key:consumer_key,
+		secret:consumer_secret
+	};
 	var sinaURL = {    
         update:                 api_domain_sina + '/statuses/update.json',
         upload:                 api_domain_sina + '/statuses/upload.json',

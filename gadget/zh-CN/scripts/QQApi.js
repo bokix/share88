@@ -130,7 +130,6 @@
 						var url = OAuth.addToURL(apiURL.authenticate,
 								message.parameters);
 
-						log(url);
 
 						tmpToken.oauth_token = requestToken.oauth_token;
 						tmpToken.oauth_token_secret = requestToken.oauth_token_secret;
@@ -138,7 +137,9 @@
 						var result = new Result();
 						result.ok = true;
 						result.srvName = "qq";
-						callback(result);
+						//callback(result);
+						log(url);
+						log('open.');
 						
 						window.location=url;
 					});

@@ -24,6 +24,18 @@ function oauth(type) {
 
 					});
 			break;
+		case 'sina' :
+			oauthStart(".sinaDiv .msg");
+			var key = $(".js_sinaAppkey").val();
+			var secret = $(".js_sinaSecret").val();
+			SinaApi.authenticate(key,secret,function(/* Result */result) {
+						oauthEnd(".sinaDiv .msg");
+						if (!result.ok) {
+							$(".sinaDiv .msg").empty().html(result.responseText);
+						}
+
+					});
+			break;	
 		default :
 			break;
 	}
@@ -61,6 +73,25 @@ function savePin(type) {
 
 					});
 			break;
+		case 'sina' :
+			oauthStart(".sinaDiv .msg");
+			var pin = $.trim($(".sinaDiv input[name=pin]").val());
+
+			if (pin == "") {
+				oauthEnd(".sinaDiv .msg");
+				$(".sinaDiv .msg").empty().html("请输入授权码");
+				return false;
+			}
+			SinaApi.getAccessToken($.trim(pin), function(/* Result */result) {
+						oauthEnd(".sinaDiv .msg");
+						if (!result.ok) {
+							$(".sinaDiv .msg").empty().html(result.responseText);
+						} else {
+							oauthCallBack(result);
+						}
+
+					});
+			break;	
 	}
 }
 function oauthStart(className) {
@@ -89,7 +120,7 @@ function oauthCallBack(/* Result */r) {
 
 	var allUserData = Util.getObjData("allUserData") || {};
 	allUserData[r.srvName] = {};
-	allUserData[r.srvName].loginName = r.data.name || "";
+	allUserData[r.srvName].loginName = r.data.name  || r.data.user_id || "";
 
 	log("allUserData[" + r.srvName + "]:"
 			+ JSON.stringify(allUserData[r.srvName]));

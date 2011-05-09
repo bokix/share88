@@ -111,7 +111,6 @@
 						var url = OAuth.addToURL(apiURL.authenticate,
 								message.parameters);
 
-						log(url);
 
 						tmpToken.oauth_token = requestToken.oauth_token;
 						tmpToken.oauth_token_secret = requestToken.oauth_token_secret;
@@ -120,7 +119,8 @@
 						result.srvName = 'net163';
 						result.ok = true;
 
-						callback(result);
+						//callback(result);
+						log(url);
 						
 						window.open(url);
 

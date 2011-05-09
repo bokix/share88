@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <gadget>
   <name>分享吧</name>
-  <version><!--_locComment_text="{Locked}"-->1.2.0.0</version>
+  <version><!--_locComment_text="{Locked}"-->0.0.29</version>
   <author name="bokix">
     <info url="http://www.bokix.com/archives/178.html" text="http://www.bokix.com/archives/178.html"/>
     <logo src="icon.png"/>

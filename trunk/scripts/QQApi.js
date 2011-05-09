@@ -146,38 +146,6 @@
 					});
 
 		},
-		authenticate2 : function(oauth_token, oauth_token_secret, callback) {
-			log('authenticate....');
-
-			var accessor = {
-				consumerSecret : consumer_secret,
-				tokenSecret : oauth_token_secret
-			};
-			var para = {
-				oauth_consumer_key : consumer_key,
-				oauth_token : oauth_token,
-				oauth_version : "1.0"
-			};
-
-			var message = {
-				action : apiURL.authenticate,
-				method : "get",
-				parameters : para
-			};
-			OAuth.setTimestampAndNonce(message);
-			OAuth.SignatureMethod.sign(message, accessor);
-			var url = OAuth.addToURL(apiURL.authenticate, message.parameters);
-
-			log(url);
-
-			tmpToken.oauth_token = oauth_token;
-			tmpToken.oauth_token_secret = oauth_token_secret;
-
-			chrome.tabs.create({
-						url : url
-					});
-
-		},
 		getAccessToken : function(pin, callback) {
 			log(JSON.stringify(tmpToken));
 			log('get access token.');

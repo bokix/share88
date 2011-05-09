@@ -1,1 +1,1 @@
-﻿config_show_other = false;
+﻿config_show_other = true;

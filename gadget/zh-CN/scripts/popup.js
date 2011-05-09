@@ -115,7 +115,10 @@ function sendMsg() {
 
 			switch (service) {
 				case "sina" :
-					SinaApi.update(getMeg4send(msgObj, "sina"), sendCallback);
+					var token = Util.getObjData("accessToken")['sina'];
+					SinaApi.updateWithOauth(getMeg4send(msgObj, "sina"), token, sendCallback);
+					//SinaApi.update(getMeg4send(msgObj, "sina"), sendCallback);
+					
 					break;
 				case "twitter" :
 					TwitterApi.update(getMeg4send(msgObj, "twitter"),
